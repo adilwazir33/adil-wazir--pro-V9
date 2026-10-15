@@ -1,292 +1,70 @@
- <script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ADIL WAZIR PRO V16 - 4/4 CONFIRMED TOP</title>
+<style>
+:root{--bg:#060a14;--card:#101a2e;--line:#253451;--green:#00ffa3;--red:#ff405c;--muted:#8fa0bd}
+*{box-sizing:border-box}body{margin:0;padding:10px;background:var(--bg);color:#e5edf8;font:13px Inter,sans-serif}
+header{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;justify-content:space-between;margin-bottom:10px}
+h2{margin:0;color:var(--green);font-size:16px}
+.grid{display:grid;gap:10px}@media(min-width:850px){.grid{grid-template-columns:1fr 1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;order:10;position:relative;transition:.3s}
+.card.top-pair{order:1;border-color:var(--green);box-shadow:0 0 20px rgba(0,255,163,.2)}
+.card.top-pair::before{content:'★ CONFIRMED 4/4 - TOP';position:absolute;top:-9px;left:12px;background:var(--green);color:#002015;font-size:8px;font-weight:900;padding:3px 8px;border-radius:5px}
+.hdr{display:flex;justify-content:space-between;align-items:center}
+.sym{font-weight:800}.sym small{display:block;color:var(--muted);font-size:9px}
+.signal{padding:5px 10px;border-radius:20px;font-weight:800;font-size:10px;background:#1e293b}
+.buy{background:var(--green);color:#002015}.sell{background:var(--red);color:#fff}.ref{background:#3b82f6;color:#fff}.offline{background:#ffb020;color:#000}
+.price{font-size:24px;font-weight:800;margin:8px 0;font-family:monospace}
+.bidask{display:flex;gap:10px;font-size:11px;font-family:monospace}.day{font-family:monospace}
+.up{color:var(--green)}.down{color:var(--red)}.div{height:1px;background:var(--line);margin:10px 0}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.stat{background:#091123;border:1px solid var(--line);border-radius:8px;padding:8px}
+.stat label{font-size:8px;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:2px}
+.stat b{font-size:11px;font-family:monospace}
+.levels{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-top:8px}
+.level{background:#091123;border:1px solid var(--line);border-radius:8px;padding:7px;text-align:center;font-size:10px}
+.level b{display:block;margin-top:3px;font-family:monospace}
+.reason{margin-top:8px;padding:8px;border:1px dashed var(--line);border-radius:8px;font-size:11px}
+.status{margin-top:6px;font-size:9px;color:var(--muted);font-family:monospace}
+button{width:100%;padding:12px;background:var(--green);border:0;border-radius:10px;font-weight:800;margin-top:10px}
+footer{text-align:center;color:var(--muted);font-size:9px;margin:12px;line-height:1.5}
+</style>
+</head>
+<body>
+<header><div><h2>ADIL WAZIR PRO V16</h2><small style="color:var(--muted)">STRICT 4/4 CONFIRMED - TOP SORT</small></div><div style="text-align:right"><div id="clock" style="font-family:monospace"></div><small id="global" style="font-size:9px">Connecting...</small></div></header>
+<div class="grid" id="grid">
+<div class="card" id="card-btc"><div class="hdr"><div class="sym">BTCUSD.r<small>BTC • Binance Live 15m • 99% Lirunex Match</small></div><span id="btcSignal" class="signal">WAIT</span></div><div id="btcPrice" class="price">--</div><div class="bidask">Bid <b id="btcBid">--</b> Ask <b id="btcAsk">--</b> <span id="btcDay" class="day"></span></div><div class="div"></div><div class="stats"><div class="stat"><label>Score</label><b id="btcScore">--</b></div><div class="stat"><label>RSI</label><b id="btcRsi">--</b></div><div class="stat"><label>EMA</label><b id="btcEma">--</b></div><div class="stat"><label>Trend</label><b id="btcTrend">--</b></div></div><div class="levels"><div class="level">ENTRY<b id="btcEntry">--</b></div><div class="level">SL<b id="btcSL">--</b></div><div class="level">TP 2R<b id="btcTP">--</b></div></div><div id="btcReason" class="reason">Loading...</div><div id="btcStatus" class="status"></div></div>
+<div class="card" id="card-gold"><div class="hdr"><div class="sym">XAUUSD.r<small>GOLD • PAXG Live • 95% Match</small></div><span id="goldSignal" class="signal">WAIT</span></div><div id="goldPrice" class="price">--</div><div class="bidask">Bid <b id="goldBid">--</b> Ask <b id="goldAsk">--</b> <span id="goldDay" class="day"></span></div><div class="div"></div><div class="stats"><div class="stat"><label>Score</label><b id="goldScore">--</b></div><div class="stat"><label>RSI</label><b id="goldRsi">--</b></div><div class="stat"><label>EMA</label><b id="goldEma">--</b></div><div class="stat"><label>Trend</label><b id="goldTrend">--</b></div></div><div class="levels"><div class="level">ENTRY<b id="goldEntry">--</b></div><div class="level">SL<b id="goldSL">--</b></div><div class="level">TP<b id="goldTP">--</b></div></div><div id="goldReason" class="reason">Loading...</div><div id="goldStatus" class="status"></div></div>
+<div class="card" id="card-eur"><div class="hdr"><div class="sym">EURUSD.r<small>EUR/USD • ECB Daily • Reference</small></div><span id="eurSignal" class="signal ref">REF</span></div><div id="eurPrice" class="price">--</div><div class="bidask">Bid <b id="eurBid">--</b> Ask <b id="eurAsk">--</b> <span id="eurDay" class="day"></span></div><div class="div"></div><div class="stats"><div class="stat"><label>Trend</label><b id="eurTrend">--</b></div><div class="stat"><label>Date</label><b id="eurDate">--</b></div></div><div id="eurReason" class="reason">Daily ECB reference</div><div id="eurStatus" class="status"></div></div>
+<div class="card" id="card-jpy"><div class="hdr"><div class="sym">USDJPY.r<small>USD/JPY • ECB Daily</small></div><span id="jpySignal" class="signal ref">REF</span></div><div id="jpyPrice" class="price">--</div><div class="bidask">Bid <b id="jpyBid">--</b> Ask <b id="jpyAsk">--</b> <span id="jpyDay" class="day"></span></div><div class="div"></div><div class="stats"><div class="stat"><label>Trend</label><b id="jpyTrend">--</b></div><div class="stat"><label>Date</label><b id="jpyDate">--</b></div></div><div id="jpyReason" class="reason">Daily reference</div><div id="jpyStatus" class="status"></div></div>
+<div class="card" id="card-nac"><div class="hdr"><div class="sym">NACUSD.r<small>NASDAQ • Proxy</small></div><span id="nacSignal" class="signal ref">PROXY</span></div><div id="nacPrice" class="price">--</div><div class="bidask">Bid <b id="nacBid">--</b> Ask <b id="nacAsk">--</b> <span id="nacDay" class="day"></span></div><div class="div"></div><div class="stats"><div class="stat"><label>Trend</label><b id="nacTrend">--</b></div><div class="stat"><label>Source</label><b id="nacDate">Yahoo</b></div></div><div id="nacReason" class="reason">NASDAQ proxy</div><div id="nacStatus" class="status"></div></div>
+</div>
+<button onclick="refreshAll()">REFRESH - CONFIRMED ON TOP</button>
+<footer>Strict 4/4 filter: BUY/SELL only when all 4 conditions agree. Jo confirm ho wo TOP pe. Bid/Ask is estimated display, not Lirunex quote. Dubai: <span id="footTime"></span></footer>
+
+<script>
 const $ = id => document.getElementById(id);
-const fmt = (n,d=2) => Number(n).toLocaleString("en-US", {
-  minimumFractionDigits:d, maximumFractionDigits:d
-});
-
-function tick(){
-  const t = new Date().toLocaleString("en-GB", {
-    timeZone:"Asia/Dubai", hour12:true
-  });
-  $("clock").textContent = t;
-  $("footTime").textContent = t;
-}
-tick();
-setInterval(tick,1000);
-
-async function getJSON(url){
-  const r = await fetch(url);
-  if(!r.ok) throw Error("API HTTP "+r.status);
-  return r.json();
-}
-
-function ema(v,p){
-  let x=v[0], k=2/(p+1);
-  for(let i=1;i<v.length;i++) x=v[i]*k+x*(1-k);
-  return x;
-}
-
-function rsi(v,per=14){
-  let g=0,l=0;
-  for(let i=1;i<=per;i++){
-    const d=v[i]-v[i-1];
-    if(d>0) g+=d; else l-=d;
-  }
-  g/=per; l/=per;
-  for(let i=per+1;i<v.length;i++){
-    const d=v[i]-v[i-1];
-    g=(g*(per-1)+Math.max(d,0))/per;
-    l=(l*(per-1)+Math.max(-d,0))/per;
-  }
-  if(l===0) return g===0?50:100;
-  return 100-100/(1+g/l);
-}
-
-function atr(c,per=14){
-  const tr=[];
-  for(let i=1;i<c.length;i++){
-    const cur=c[i], prev=c[i-1];
-    tr.push(Math.max(
-      cur.h-cur.l,
-      Math.abs(cur.h-prev.c),
-      Math.abs(cur.l-prev.c)
-    ));
-  }
-  let a=tr.slice(0,per).reduce((s,x)=>s+x,0)/per;
-  for(let i=per;i<tr.length;i++)
-    a=(a*(per-1)+tr[i])/per;
-  return a;
-}
-
-/* Strict filter: BUY/SELL only at 4/4.
-   Uses completed candles only. */
-function analyze(candles){
-  if(candles.length<60) throw Error("Need 60+ closed candles");
-
-  const closes=candles.map(x=>x.c);
-  const last=closes.at(-1), prev=closes.at(-2);
-  const e20=ema(closes,20), e50=ema(closes,50);
-  const r=rsi(closes), a=atr(candles);
-
-  if(!Number.isFinite(a)||a<=0||!Number.isFinite(r))
-    throw Error("Indicator data invalid");
-
-  const buyChecks=[
-    last>e20,
-    e20>e50,
-    r>=52&&r<=68,
-    last>prev
-  ];
-
-  const sellChecks=[
-    last<e20,
-    e20<e50,
-    r>=32&&r<=48,
-    last<prev
-  ];
-
-  const buy=buyChecks.filter(Boolean).length;
-  const sell=sellChecks.filter(Boolean).length;
-
-  let dir="WAIT", score=Math.max(buy,sell);
-  let sl=null,tp=null,reason="No fully confirmed setup";
-
-  if(buy===4){
-    dir="BUY";
-    sl=last-a;
-    tp=last+2*a;
-    reason="BUY confirmed: 4/4 conditions";
-  } else if(sell===4){
-    dir="SELL";
-    sl=last+a;
-    tp=last-2*a;
-    reason="SELL confirmed: 4/4 conditions";
-  } else {
-    reason="WAIT: BUY "+buy+"/4, SELL "+sell+"/4";
-  }
-
-  return {
-    last,e20,e50,r,a,dir,reason,
-    score,entry:last,sl,tp,
-    trend:e20>e50?"Bullish":e20<e50?"Bearish":"Mixed"
-  };
-}
-
-/* Only the latest fully closed 15m candles are analyzed. */
-function closedCandles(raw){
-  const now=Date.now();
-  return raw.filter(k=>Number(k[6])<now).map(k=>({
-    h:+k[2],l:+k[3],c:+k[4]
-  }));
-}
-
-/* Use a neutral estimated spread only for display.
-   This is NOT a Lirunex bid/ask quote. */
-function setBidAsk(pref,price,pct,day,d){
-  const spread=price*pct/100;
-  $(pref+"Bid").textContent=fmt(price-spread/2,d);
-  $(pref+"Ask").textContent=fmt(price+spread/2,d);
-  const el=$(pref+"Day");
-  el.textContent=(day>=0?"+":"")+fmt(day,2)+"%";
-  el.className="day "+(day>=0?"up":"down");
-}
-
-function promoteCard(cardId,score,dir){
-  const card=$(cardId);
-  card.classList.remove("top-pair");
-  card.style.order="10";
-  if(dir==="BUY"||dir==="SELL"){
-    card.style.order="1";
-    card.classList.add("top-pair");
-  }
-}
-
-/* Prevent old successful signals remaining visible after API errors. */
-function offline(pref,e){
-  const s=$(pref+"Signal");
-  s.textContent="OFFLINE";
-  s.className="signal offline";
-  $(pref+"Status").textContent="No current data: "+e.message;
-  $(pref+"Reason").textContent="Signal unavailable. Check data connection.";
-  $(pref+"Price").textContent="--";
-  $(pref+"Bid").textContent="--";
-  $(pref+"Ask").textContent="--";
-  $(pref+"Day").textContent="";
-  if($(pref+"Score")) $(pref+"Score").textContent="--";
-  if($(pref+"Rsi")) $(pref+"Rsi").textContent="--";
-  if($(pref+"Ema")) $(pref+"Ema").textContent="--";
-  if($(pref+"Trend")) $(pref+"Trend").textContent="--";
-  if($(pref+"Entry")) $(pref+"Entry").textContent="--";
-  if($(pref+"SL")) $(pref+"SL").textContent="--";
-  if($(pref+"TP")) $(pref+"TP").textContent="--";
-  promoteCard("card-"+pref,0,"WAIT");
-}
-
-function renderCrypto(pref,x,tk,d){
-  $(pref+"Price").textContent="$"+fmt(x.last,d);
-  setBidAsk(pref,x.last,pref==="btc"?0.02:0.03,
-    +tk.priceChangePercent,d);
-
-  const s=$(pref+"Signal");
-  s.textContent=x.dir;
-  s.className="signal "+(x.dir==="BUY"?"buy":
-    x.dir==="SELL"?"sell":"");
-
-  $(pref+"Score").textContent=x.score+"/4";
-  $(pref+"Rsi").textContent=fmt(x.r,1);
-  $(pref+"Ema").textContent=fmt(x.e20,d)+"/"+fmt(x.e50,d);
-  $(pref+"Trend").textContent=x.trend;
-  $(pref+"Entry").textContent=fmt(x.entry,d);
-  $(pref+"SL").textContent=x.sl===null?"--":fmt(x.sl,d);
-  $(pref+"TP").textContent=x.tp===null?"--":fmt(x.tp,d);
-  $(pref+"Reason").textContent=x.reason;
-  $(pref+"Status").textContent=
-    "Binance • Closed 15m candles • Updated "+new Date().toLocaleTimeString();
-
-  promoteCard("card-"+pref,x.score,x.dir);
-}
-
-async function loadCrypto(pref,symbol,d){
-  try{
-    const base="https://api.binance.com/api/v3/";
-    const [tk,kl]=await Promise.all([
-      getJSON(base+"ticker/24hr?symbol="+symbol),
-      getJSON(base+"klines?symbol="+symbol+"&interval=15m&limit=150")
-    ]);
-    const candles=closedCandles(kl);
-    const x=analyze(candles);
-    renderCrypto(pref,x,tk,d);
-  }catch(e){
-    offline(pref,e);
-  }
-}
-
-async function loadBTC(){
-  await loadCrypto("btc","BTCUSDT",2);
-}
-async function loadGold(){
-  await loadCrypto("gold","PAXGUSDT",2);
-}
-
-async function loadEUR(){
-  try{
-    const end=new Date(), start=new Date(Date.now()-180*86400000);
-    const d=v=>v.toISOString().slice(0,10);
-    const j=await getJSON(
-      "https://api.frankfurter.dev/v1/"+d(start)+".."+d(end)+
-      "?base=EUR&symbols=USD"
-    );
-    const ent=Object.entries(j.rates).sort((a,b)=>a[0].localeCompare(b[0]));
-    if(ent.length<2) throw Error("Insufficient reference data");
-    const last=+ent.at(-1)[1].USD,prev=+ent.at(-2)[1].USD;
-    const day=(last-prev)/prev*100;
-    $("eurPrice").textContent=fmt(last,5);
-    setBidAsk("eur",last,0.015,day,5);
-    $("eurTrend").textContent=last>prev?"Bullish":last<prev?"Bearish":"Mixed";
-    $("eurDate").textContent=ent.at(-1)[0];
-    $("eurSignal").textContent="REF";
-    $("eurSignal").className="signal ref";
-    $("eurReason").textContent="Daily reference rate, not a live forex signal.";
-    $("eurStatus").textContent="Frankfurter reference • "+ent.at(-1)[0];
-  }catch(e){offline("eur",e);}
-}
-
-async function loadJPY(){
-  try{
-    const end=new Date(),start=new Date(Date.now()-180*86400000);
-    const d=v=>v.toISOString().slice(0,10);
-    const j=await getJSON(
-      "https://api.frankfurter.dev/v1/"+d(start)+".."+d(end)+
-      "?base=USD&symbols=JPY"
-    );
-    const ent=Object.entries(j.rates).sort((a,b)=>a[0].localeCompare(b[0]));
-    if(ent.length<2) throw Error("Insufficient reference data");
-    const last=+ent.at(-1)[1].JPY,prev=+ent.at(-2)[1].JPY;
-    const day=(last-prev)/prev*100;
-    $("jpyPrice").textContent=fmt(last,3);
-    setBidAsk("jpy",last,0.02,day,3);
-    $("jpyTrend").textContent=last>prev?"Bullish":last<prev?"Bearish":"Mixed";
-    $("jpyDate").textContent=ent.at(-1)[0];
-    $("jpySignal").textContent="REF";
-    $("jpySignal").className="signal ref";
-    $("jpyReason").textContent="Daily reference rate, not a live forex signal.";
-    $("jpyStatus").textContent="Frankfurter reference • "+ent.at(-1)[0];
-  }catch(e){offline("jpy",e);}
-}
-
-async function loadNAC(){
-  try{
-    const url="https://query1.finance.yahoo.com/v8/finance/chart/NQ%3DF?range=3mo&interval=1d";
-    const p=await getJSON("https://api.allorigins.win/raw?url="+encodeURIComponent(url));
-    const result=p.chart?.result?.[0];
-    const closes=result?.indicators?.quote?.[0]?.close?.filter(Number.isFinite);
-    if(!closes||closes.length<2) throw Error("No valid NASDAQ data");
-    const last=closes.at(-1),prev=closes.at(-2),day=(last-prev)/prev*100;
-    $("nacPrice").textContent=fmt(last,1);
-    setBidAsk("nac",last,0.03,day,1);
-    $("nacTrend").textContent=last>prev?"Bullish":last<prev?"Bearish":"Mixed";
-    $("nacSignal").textContent="PROXY";
-    $("nacSignal").className="signal ref";
-    $("nacReason").textContent="NASDAQ futures reference, not Lirunex NACUSD.r.";
-    $("nacStatus").textContent="Yahoo NQ=F • Daily data";
-  }catch(e){offline("nac",e);}
-}
-
-let busy=false;
-async function refreshAll(){
-  if(busy) return;
-  busy=true;
-  $("global").textContent="Checking market data...";
-  try{
-    await Promise.allSettled([
-      loadBTC(),loadGold(),loadEUR(),loadJPY(),loadNAC()
-    ]);
-    $("global").textContent="Data check complete • "+new Date().toLocaleTimeString();
-  }finally{
-    busy=false;
-  }
-}
-
-refreshAll();
-setInterval(refreshAll,30000);
+const fmt = (n,d=2) => Number(n).toLocaleString("en-US", {minimumFractionDigits:d, maximumFractionDigits:d});
+function tick(){const t = new Date().toLocaleString("en-GB", {timeZone:"Asia/Dubai", hour12:true});$("clock").textContent = t;$("footTime").textContent = t;}tick();setInterval(tick,1000);
+async function getJSON(url){const r = await fetch(url);if(!r.ok) throw Error("API HTTP "+r.status);return r.json();}
+function ema(v,p){let x=v[0], k=2/(p+1);for(let i=1;i<v.length;i++) x=v[i]*k+x*(1-k);return x;}
+function rsi(v,per=14){let g=0,l=0;for(let i=1;i<=per;i++){const d=v[i]-v[i-1];if(d>0) g+=d; else l-=d;}g/=per; l/=per;for(let i=per+1;i<v.length;i++){const d=v[i]-v[i-1];g=(g*(per-1)+Math.max(d,0))/per;l=(l*(per-1)+Math.max(-d,0))/per;}if(l===0) return g===0?50:100;return 100-100/(1+g/l);}
+function atr(c,per=14){const tr=[];for(let i=1;i<c.length;i++){const cur=c[i], prev=c[i-1];tr.push(Math.max(cur.h-cur.l,Math.abs(cur.h-prev.c),Math.abs(cur.l-prev.c)));}let a=tr.slice(0,per).reduce((s,x)=>s+x,0)/per;for(let i=per;i<tr.length;i++)a=(a*(per-1)+tr[i])/per;return a;}
+function analyze(candles){if(candles.length<60) throw Error("Need 60+ closed candles");const closes=candles.map(x=>x.c);const last=closes.at(-1), prev=closes.at(-2);const e20=ema(closes,20), e50=ema(closes,50);const r=rsi(closes), a=atr(candles);if(!Number.isFinite(a)||a<=0||!Number.isFinite(r))throw Error("Indicator data invalid");const buyChecks=[last>e20,e20>e50,r>=52&&r<=68,last>prev];const sellChecks=[last<e20,e20<e50,r>=32&&r<=48,last<prev];const buy=buyChecks.filter(Boolean).length;const sell=sellChecks.filter(Boolean).length;let dir="WAIT", score=Math.max(buy,sell);let sl=null,tp=null,reason="No fully confirmed setup";if(buy===4){dir="BUY";sl=last-a;tp=last+2*a;reason="BUY confirmed: 4/4 conditions";}else if(sell===4){dir="SELL";sl=last+a;tp=last-2*a;reason="SELL confirmed: 4/4 conditions";}else{reason="WAIT: BUY "+buy+"/4, SELL "+sell+"/4";}return{last,e20,e50,r,a,dir,reason,score,entry:last,sl,tp,trend:e20>e50?"Bullish":e20<e50?"Bearish":"Mixed"};}
+function closedCandles(raw){const now=Date.now();return raw.filter(k=>Number(k[6])<now).map(k=>({h:+k[2],l:+k[3],c:+k[4]}));}
+function setBidAsk(pref,price,pct,day,d){const spread=price*pct/100;$(pref+"Bid").textContent=fmt(price-spread/2,d);$(pref+"Ask").textContent=fmt(price+spread/2,d);const el=$(pref+"Day");el.textContent=(day>=0?"+":"")+fmt(day,2)+"%";el.className="day "+(day>=0?"up":"down");}
+function promoteCard(cardId,score,dir){const card=$(cardId);card.classList.remove("top-pair");card.style.order="10";if(dir==="BUY"||dir==="SELL"){card.style.order="1";card.classList.add("top-pair");}}
+function offline(pref,e){const s=$(pref+"Signal");s.textContent="OFFLINE";s.className="signal offline";$(pref+"Status").textContent="No current data: "+e.message;$(pref+"Reason").textContent="Signal unavailable. Check data connection.";$(pref+"Price").textContent="--";$(pref+"Bid").textContent="--";$(pref+"Ask").textContent="--";$(pref+"Day").textContent="";if($(pref+"Score")) $(pref+"Score").textContent="--";if($(pref+"Rsi")) $(pref+"Rsi").textContent="--";if($(pref+"Ema")) $(pref+"Ema").textContent="--";if($(pref+"Trend")) $(pref+"Trend").textContent="--";if($(pref+"Entry")) $(pref+"Entry").textContent="--";if($(pref+"SL")) $(pref+"SL").textContent="--";if($(pref+"TP")) $(pref+"TP").textContent="--";promoteCard("card-"+pref,0,"WAIT");}
+function renderCrypto(pref,x,tk,d){$(pref+"Price").textContent="$"+fmt(x.last,d);setBidAsk(pref,x.last,pref==="btc"?0.02:0.03,+tk.priceChangePercent,d);const s=$(pref+"Signal");s.textContent=x.dir;s.className="signal "+(x.dir==="BUY"?"buy":x.dir==="SELL"?"sell":"");$(pref+"Score").textContent=x.score+"/4";$(pref+"Rsi").textContent=fmt(x.r,1);$(pref+"Ema").textContent=fmt(x.e20,d)+"/"+fmt(x.e50,d);$(pref+"Trend").textContent=x.trend;$(pref+"Entry").textContent=fmt(x.entry,d);$(pref+"SL").textContent=x.sl===null?"--":fmt(x.sl,d);$(pref+"TP").textContent=x.tp===null?"--":fmt(x.tp,d);$(pref+"Reason").textContent=x.reason;$(pref+"Status").textContent="Binance • Closed 15m candles • Updated "+new Date().toLocaleTimeString();promoteCard("card-"+pref,x.score,x.dir);}
+async function loadCrypto(pref,symbol,d){try{const base="https://api.binance.com/api/v3/";const [tk,kl]=await Promise.all([getJSON(base+"ticker/24hr?symbol="+symbol),getJSON(base+"klines?symbol="+symbol+"&interval=15m&limit=150")]);const candles=closedCandles(kl);const x=analyze(candles);renderCrypto(pref,x,tk,d);}catch(e){offline(pref,e);}}
+async function loadBTC(){await loadCrypto("btc","BTCUSDT",2);}async function loadGold(){await loadCrypto("gold","PAXGUSDT",2);}
+async function loadEUR(){try{const end=new Date(), start=new Date(Date.now()-180*86400000);const d=v=>v.toISOString().slice(0,10);const j=await getJSON("https://api.frankfurter.dev/v1/"+d(start)+".."+d(end)+"?base=EUR&symbols=USD");const ent=Object.entries(j.rates).sort((a,b)=>a[0].localeCompare(b[0]));if(ent.length<2) throw Error("Insufficient reference data");const last=+ent.at(-1)[1].USD,prev=+ent.at(-2)[1].USD;const day=(last-prev)/prev*100;$("eurPrice").textContent=fmt(last,5);setBidAsk("eur",last,0.015,day,5);$("eurTrend").textContent=last>prev?"Bullish":last<prev?"Bearish":"Mixed";$("eurDate").textContent=ent.at(-1)[0];$("eurSignal").textContent="REF";$("eurSignal").className="signal ref";$("eurReason").textContent="Daily reference rate, not a live forex signal.";$("eurStatus").textContent="Frankfurter reference • "+ent.at(-1)[0];}catch(e){offline("eur",e);}}
+async function loadJPY(){try{const end=new Date(),start=new Date(Date.now()-180*86400000);const d=v=>v.toISOString().slice(0,10);const j=await getJSON("https://api.frankfurter.dev/v1/"+d(start)+".."+d(end)+"?base=USD&symbols=JPY");const ent=Object.entries(j.rates).sort((a,b)=>a[0].localeCompare(b[0]));if(ent.length<2) throw Error("Insufficient reference data");const last=+ent.at(-1)[1].JPY,prev=+ent.at(-2)[1].JPY;const day=(last-prev)/prev*100;$("jpyPrice").textContent=fmt(last,3);setBidAsk("jpy",last,0.02,day,3);$("jpyTrend").textContent=last>prev?"Bullish":last<prev?"Bearish":"Mixed";$("jpyDate").textContent=ent.at(-1)[0];$("jpySignal").textContent="REF";$("jpySignal").className="signal ref";$("jpyReason").textContent="Daily reference rate, not a live forex signal.";$("jpyStatus").textContent="Frankfurter reference • "+ent.at(-1)[0];}catch(e){offline("jpy",e);}}
+async function loadNAC(){try{const url="https://query1.finance.yahoo.com/v8/finance/chart/NQ%3DF?range=3mo&interval=1d";const p=await getJSON("https://api.allorigins.win/raw?url="+encodeURIComponent(url));const result=p.chart?.result?.[0];const closes=result?.indicators?.quote?.[0]?.close?.filter(Number.isFinite);if(!closes||closes.length<2) throw Error("No valid NASDAQ data");const last=closes.at(-1),prev=closes.at(-2),day=(last-prev)/prev*100;$("nacPrice").textContent=fmt(last,1);setBidAsk("nac",last,0.03,day,1);$("nacTrend").textContent=last>prev?"Bullish":last<prev?"Bearish":"Mixed";$("nacSignal").textContent="PROXY";$("nacSignal").className="signal ref";$("nacReason").textContent="NASDAQ futures reference, not Lirunex NACUSD.r.";$("nacStatus").textContent="Yahoo NQ=F • Daily data";}catch(e){offline("nac",e);}}
+let busy=false;async function refreshAll(){if(busy) return;busy=true;$("global").textContent="Checking market data...";try{await Promise.allSettled([loadBTC(),loadGold(),loadEUR(),loadJPY(),loadNAC()]);$("global").textContent="Data check complete • "+new Date().toLocaleTimeString();}finally{busy=false;}}refreshAll();setInterval(refreshAll,30000);
 </script>
+</body>
+</html>
