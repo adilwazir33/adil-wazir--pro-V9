@@ -1,44 +1,210 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ADIL WAZIR PRO V9 - LIVE</title>
+<title>ADIL WAZIR PRO V10</title>
 <style>
-body{background:#0a0e1a;color:#fff;font-family:Arial;margin:0;padding:15px}
-.card{background:#151a2b;border-radius:15px;padding:15px;margin:15px 0;border:1px solid #00ff88}
-.btn{background:#00ff88;color:#000;padding:15px;border-radius:10px;text-align:center;font-weight:bold;font-size:18px;display:block;text-decoration:none;margin:10px 0}
-.live{color:#00ff88;animation:blink 1s infinite}
-@keyframes blink{50%{opacity:0}}
-h1{text-align:center;color:#00ff88}
-.signal{font-size:20px;margin:10px 0}
+*{box-sizing:border-box}
+body{margin:0;padding:12px;background:#050a14;color:#fff;font-family:Arial,sans-serif}
+.header,.card{background:#101a2e;border:1px solid #203451;border-radius:15px;padding:16px;margin-bottom:13px}
+.header{text-align:center;border-color:#00ff88}
+h2{color:#00ff88;font-size:21px;margin:3px 0 10px}
+.muted{color:#9caac0;font-size:12px}
+.live{color:#00ff88}
+.price{font-size:25px;font-weight:bold;margin:12px 0}
+.row{display:flex;justify-content:space-between;gap:8px;margin:9px 0;font-size:13px}
+.signal{display:inline-block;padding:7px 13px;border-radius:20px;background:#344054;font-weight:bold}
+.buy{background:#00ff88;color:#001b0c}
+.sell{background:#ff4057;color:white}
+.wait{background:#475569;color:white}
+hr{border:0;border-top:1px solid #26354d;margin:12px 0}
+button{width:100%;padding:13px;border:0;border-radius:10px;background:#00ff88;color:#00130b;font-size:15px;font-weight:bold}
+.footer{font-size:11px;color:#9caac0;line-height:1.6;text-align:center;margin:18px 4px}
 </style>
 </head>
 <body>
-<h1>🔥 ADIL WAZIR PRO V9 🔥</h1>
-<p style="text-align:center"><span class="live">● LIVE</span> Dubai Time: <span id="time"></span></p>
 
-<div class="card">
-<div class="signal">🔻 XAUUSD (GOLD) - SELL CONFIRMED</div>
-Entry: 4162.30<br>SL: 4187.27<br>TP1: 4129.00 | TP2: 4099.87 | TP3: 4058.24<br><br>
-<small>EMA 50 + RSI 58 - High Probability</small>
+<div class="header">
+<h2>🔥 ADIL WAZIR PRO V10</h2>
+<div class="live">● MARKET DATA</div>
+<p id="clock" class="muted"></p>
+<p id="status" class="muted">Connecting...</p>
 </div>
 
 <div class="card">
-<div class="signal">🚀 BTCUSD - BUY CONFIRMED</div>
-Entry: 109,500.00<br>SL: 108,200.00<br>TP1: 111,000 | TP2: 113,000 | TP3: 115,500
+<div class="row"><b>BITCOIN / USDT</b><span id="btcSignal" class="signal wait">WAIT</span></div>
+<div id="btcPrice" class="price">Loading...</div>
+<div id="btcChange" class="muted">24h change: --</div>
+<hr>
+<div class="row"><span>Technical score</span><b id="btcScore">--</b></div>
+<div class="row"><span>EMA 20 / EMA 50</span><b id="btcEma">--</b></div>
+<div class="row"><span>RSI 14</span><b id="btcRsi">--</b></div>
+<div class="row"><span>Entry</span><b id="btcEntry">--</b></div>
+<div class="row"><span>Stop Loss</span><b id="btcSL">--</b></div>
+<div class="row"><span>Take Profit 1</span><b id="btcTP">--</b></div>
+<p id="btcReason" class="muted">Waiting for candle data...</p>
 </div>
 
 <div class="card">
-<div class="signal">🔻 EURUSD - SELL CONFIRMED</div>
-Entry: 1.16450<br>SL: 1.16750<br>TP1: 1.16100 | TP2: 1.15800 | TP3: 1.15400
+<div class="row"><b>PAX GOLD / USDT</b><span id="goldSignal" class="signal wait">WAIT</span></div>
+<div id="goldPrice" class="price">Loading...</div>
+<div class="muted">PAXG is a gold-backed token, not the exact MT5 XAUUSD quote.</div>
+<hr>
+<div class="row"><span>Technical score</span><b id="goldScore">--</b></div>
+<div class="row"><span>EMA 20 / EMA 50</span><b id="goldEma">--</b></div>
+<div class="row"><span>RSI 14</span><b id="goldRsi">--</b></div>
+<div class="row"><span>Entry</span><b id="goldEntry">--</b></div>
+<div class="row"><span>Stop Loss</span><b id="goldSL">--</b></div>
+<div class="row"><span>Take Profit 1</span><b id="goldTP">--</b></div>
+<p id="goldReason" class="muted">Waiting for candle data...</p>
 </div>
 
-<a class="btn" href="https://t.me/+8Kx2X8X8X8X8X8X8">JOIN TELEGRAM FOR LIVE SIGNALS 🚀</a>
-
-<p style="text-align:center;color:#888;margin-top:20px">Risk: 1% per trade | 15M Scalp | 1H Intraday</p>
+<button onclick="refreshAll()">REFRESH MARKET</button>
+<div class="footer">
+Updates approximately every 30 seconds.<br>
+Technical signals are not guaranteed trade outcomes.<br>
+Use a demo account and independently verify prices before trading.
+</div>
 
 <script>
-setInterval(()=>{document.getElementById('time').innerText=new Date().toLocaleString()},1000)
+const $ = id => document.getElementById(id);
+const fmt = n => Number(n).toLocaleString("en-US",{
+ minimumFractionDigits:2,maximumFractionDigits:2
+});
+
+function clock(){
+ $("clock").textContent =
+ new Date().toLocaleString("en-GB",{timeZone:"Asia/Dubai"});
+}
+setInterval(clock,1000);clock();
+
+async function getJSON(url){
+ const r=await fetch(url);
+ if(!r.ok) throw new Error("API HTTP "+r.status);
+ return r.json();
+}
+
+function ema(values,period){
+ const k=2/(period+1);
+ let result=values[0];
+ for(let i=1;i<values.length;i++)
+ result=values[i]*k+result*(1-k);
+ return result;
+}
+
+function rsi(values,period=14){
+ let gains=0,losses=0;
+ for(let i=values.length-period;i<values.length;i++){
+ const d=values[i]-values[i-1];
+ if(d>0)gains+=d;else losses-=d;
+ }
+ if(losses===0)return 100;
+ return 100-(100/(1+gains/losses));
+}
+
+function atr(candles,period=14){
+ let sum=0;
+ for(let i=candles.length-period;i<candles.length;i++){
+ const c=candles[i],p=candles[i-1];
+ sum+=Math.max(c.h-c.l,Math.abs(c.h-p.c),Math.abs(c.l-p.c));
+ }
+ return sum/period;
+}
+
+function analyze(candles){
+ // Exclude the currently forming candle.
+ const data=candles.slice(0,-1);
+ if(data.length<60)throw new Error("Not enough candles");
+
+ const closes=data.map(c=>c.c);
+ const last=closes[closes.length-1];
+ const e20=ema(closes.slice(-100),20);
+ const e50=ema(closes.slice(-150),50);
+ const rv=rsi(closes);
+ const av=atr(data);
+ const previous=closes[closes.length-2];
+
+ let points=0;
+ if(last>e20)points++;
+ if(e20>e50)points++;
+ if(rv>50&&rv<70)points++;
+ if(last>previous)points++;
+
+ let direction="WAIT",score=50,reason="No clear setup";
+ if(points>=3&&rv<70){
+ direction="BUY";score=60+points*8;
+ reason="Bullish trend and momentum";
+ }else if(points<=1&&rv>30){
+ direction="SELL";score=60+(4-points)*8;
+ reason="Bearish trend and momentum";
+ }else{
+ reason="Indicators are mixed; wait for confirmation";
+ }
+
+ // Risk levels are indicative and use ATR.
+ let sl=null,tp=null;
+ if(direction==="BUY"){sl=last-av;tp=last+2*av}
+ if(direction==="SELL"){sl=last+av;tp=last-2*av}
+
+ return {last,e20,e50,rv,av,direction,score,reason,sl,tp};
+}
+
+function render(prefix,a){
+ $(prefix+"Price").textContent="$"+fmt(a.last);
+ const sig=$(prefix+"Signal");
+ sig.textContent=a.direction;
+ sig.className="signal "+(a.direction==="BUY"?"buy":a.direction==="SELL"?"sell":"wait");
+ $(prefix+"Score").textContent=a.score+"/100 (technical score)";
+ $(prefix+"Ema").textContent=fmt(a.e20)+" / "+fmt(a.e50);
+ $(prefix+"Rsi").textContent=fmt(a.rv);
+ $(prefix+"Entry").textContent=fmt(a.last);
+ $(prefix+"SL").textContent=a.sl===null?"--":fmt(a.sl);
+ $(prefix+"TP").textContent=a.tp===null?"--":fmt(a.tp);
+ $(prefix+"Reason").textContent=a.reason;
+}
+
+async function loadBTC(){
+ const base="https://api.binance.com/api/v3/";
+ const [ticker,klines]=await Promise.all([
+ getJSON(base+"ticker/24hr?symbol=BTCUSDT"),
+ getJSON(base+"klines?symbol=BTCUSDT&interval=15m&limit=100")
+ ]);
+ const candles=klines.map(k=>({h:+k[2],l:+k[3],c:+k[4]}));
+ const a=analyze(candles);
+ render("btc",a);
+ $("btcChange").textContent="24h change: "+(+ticker.priceChangePercent).toFixed(2)+"%";
+}
+
+async function loadGold(){
+ const base="https://api.binance.com/api/v3/";
+ const [ticker,klines]=await Promise.all([
+ getJSON(base+"ticker/price?symbol=PAXGUSDT"),
+ getJSON(base+"klines?symbol=PAXGUSDT&interval=15m&limit=100")
+ ]);
+ const candles=klines.map(k=>({h:+k[2],l:+k[3],c:+k[4]}));
+ const a=analyze(candles);
+ render("gold",a);
+}
+
+let busy=false;
+async function refreshAll(){
+ if(busy)return;
+ busy=true;
+ $("status").textContent="Fetching live market data...";
+ try{
+  const results=await Promise.allSettled([loadBTC(),loadGold()]);
+  const failed=results.some(r=>r.status==="rejected");
+  $("status").textContent=failed
+  ?"Some data unavailable. Check connection/API limits."
+  :"● Market data updated "+new Date().toLocaleTimeString();
+ }catch(e){
+  $("status").textContent="Market API unavailable";
+ }finally{busy=false}
+}
+
+refreshAll();
+setInterval(refreshAll,30000);
 </script>
 </body>
 </html>
