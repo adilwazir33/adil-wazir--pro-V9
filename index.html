@@ -5,73 +5,78 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#080d18">
-<title>Adil Wazir M5 PRO - Mark X Edition</title>
+<meta name="theme-color" content="#060913">
+<title>Adil Wazir M5 PRO - Diamond Edition</title>
 <style>
 :root {
-    --bg-main: #080d18;
-    --bg-card: #141d30;
-    --bg-metric: #0b1323;
-    --border-color: #283651;
+    --bg-main: #060913;
+    --bg-card: #0f1626;
+    --bg-metric: #0a0e1a;
+    --border-color: #1f2c45;
     --text-primary: #edf4ff;
-    --text-muted: #9baac3;
+    --text-muted: #8fa1bd;
     --color-accent: #00d4ff;
-    --color-buy: #078459;
-    --color-sell: #bf334a;
-    --color-wait: #56647a;
+    --color-buy: #00c076;
+    --color-sell: #ff3344;
+    --color-wait: #4a5568;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 body {
-    margin: 0; padding: 14px; background: var(--bg-main); color: var(--text-primary);
-    font-family: Arial, sans-serif; max-width: 520px; margin-inline: auto; padding-bottom: 30px;
+    background: var(--bg-main); color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+    padding: 16px; max-width: 500px; margin: 0 auto; padding-bottom: 30px;
 }
 .header, .card, .panel {
-    background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 14px;
-    padding: 16px; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px;
+    padding: 16px; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
 }
-.header { text-align: center; }
-h1 { font-size: 20px; color: var(--color-accent); margin: 0 0 8px; font-weight: bold; }
+.header { text-align: center; padding: 14px; }
+h1 { font-size: 18px; color: var(--color-accent); font-weight: 700; letter-spacing: 0.5px; }
+.row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.markx {
+    background: linear-gradient(135deg, #045235, #054d6a); padding: 16px;
+    border-radius: 16px; margin-bottom: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.08);
+}
 .tabs { display: flex; gap: 8px; margin-bottom: 12px; }
 .tab {
-    flex: 1; padding: 10px; border-radius: 8px; background: #1c2942; border: 1px solid var(--border-color);
-    color: var(--text-muted); font-weight: bold; font-size: 13px; cursor: pointer; transition: all 0.2s;
+    flex: 1; padding: 12px; border-radius: 10px; background: #151e30; border: 1px solid var(--border-color);
+    color: var(--text-muted); font-weight: bold; font-size: 13px; cursor: pointer; transition: all 0.2s ease;
 }
-.tab.active { background: #087eac; color: #fff; border-color: var(--color-accent); }
-.price { font-size: 24px; font-family: monospace; font-weight: bold; margin: 12px 0; }
-.signal { display: inline-block; padding: 7px 15px; border-radius: 7px; font-weight: bold; background: var(--color-wait); color: #fff; min-width: 75px; text-align: center; }
-.signal.buy { background: var(--color-buy); }
-.signal.sell { background: var(--color-sell); }
+.tab.active { background: #087eac; color: #fff; border-color: #00d4ff; box-shadow: 0 0 10px rgba(0,212,255,0.2); }
+.price { font-size: 26px; font-family: monospace; font-weight: bold; margin: 12px 0; display: flex; flex-direction: column; }
+.signal { display: inline-block; padding: 6px 14px; border-radius: 8px; font-weight: bold; font-size: 13px; background: var(--color-wait); color: #fff; text-align: center; min-width: 70px; text-transform: uppercase; }
+.signal.buy { background: var(--color-buy); box-shadow: 0 0 8px rgba(0,192,118,0.3); }
+.signal.sell { background: var(--color-sell); box-shadow: 0 0 8px rgba(255,51,68,0.3); }
 .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
-.metric { padding: 12px; background: var(--bg-metric); border-radius: 9px; border: 1px solid rgba(255,255,255,0.02); }
-.metric small { color: var(--text-muted); font-size: 11px; display: block; margin-bottom: 5px; text-transform: uppercase; }
+.metric { padding: 12px; background: var(--bg-metric); border-radius: 10px; border: 1px solid rgba(255,255,255,0.02); }
+.metric small { color: var(--text-muted); font-size: 11px; display: block; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.3px; }
 .metric strong { font-size: 14px; font-family: monospace; color: var(--text-primary); }
-.live-price { font-size: 13px; color: #00e59a; margin-top: 4px; display: block; font-weight: normal; animation: blink 1s infinite; }
-@keyframes blink { 50% { opacity: 0.4; } }
-.dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #e7a83c; margin-right: 6px; transition: all 0.3s; }
+.live-price { font-size: 13px; color: #00e59a; margin-top: 4px; display: block; font-weight: normal; animation: blink 1.2s infinite; }
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+.dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #e7a83c; margin-right: 6px; }
 .dot.active { background: #00e59a; box-shadow: 0 0 8px #00e59a; }
-input { background: var(--bg-metric); border: 1px solid var(--border-color); color: #fff; padding: 8px; border-radius: 6px; width: 105px; text-align: center; font-size: 14px; }
-button { background: #087eac; color: white; border: 0; border-radius: 8px; padding: 10px 14px; font-weight: bold; cursor: pointer; }
+input { background: var(--bg-metric); border: 1px solid var(--border-color); color: #fff; padding: 10px; border-radius: 8px; width: 110px; text-align: center; font-size: 14px; }
+button { background: #087eac; color: white; border: 0; border-radius: 8px; padding: 10px 16px; font-weight: bold; cursor: pointer; }
 button:active { filter: brightness(0.8); }
-.markx { background: linear-gradient(90deg, #078459, #087eac); padding: 14px; border-radius: 12px; margin-bottom: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
-.status { font-size: 11px; color: var(--text-muted); margin-top: 8px; line-height: 1.4; }
+.panel .status { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
 </style>
 </head>
 <body>
 
 <div class="header">
     <h1>💎 ADIL WAZIR M5 PRO</h1>
-    <small style="display: flex; align-items: center; justify-content: center;"><span id="dot" class="dot"></span><span id="connection" style="color: var(--text-muted);">Connecting to core nodes...</span></small>
+    <small style="display: flex; align-items: center; justify-content: center; margin-top: 4px;"><span id="dot" class="dot"></span><span id="connection" style="color: var(--text-muted);">Syncing networks...</span></small>
 </div>
 
 <div class="markx">
-    <div style="font-size:12px; opacity:0.9; font-weight: bold; letter-spacing: 0.5px;">MARK X FUND</div>
-    <div style="font-size:26px; font-weight:bold; margin:6px 0; font-family: monospace;">$<span id="fund">25,000.00</span></div>
-    <div style="display:flex; gap:6px; justify-content:center; margin-top: 8px;">
+    <div style="font-size: 11px; opacity: 0.8; letter-spacing: 1px; font-weight: bold;">MARK X FUND</div>
+    <div style="font-size: 28px; font-weight: bold; margin: 6px 0; font-family: monospace;">$<span id="fund">25,000.00</span></div>
+    <div style="display: flex; gap: 8px; justify-content: center; margin-top: 10px;">
         <input id="fundInput" type="number" step="any" placeholder="Amount">
         <button onclick="addFund()">+ ADD</button>
-        <button onclick="resetFund()" style="background: #283651;">Reset</button>
+        <button onclick="resetFund()" style="background: #38455e;">Reset</button>
     </div>
-    <div id="markxMsg" style="font-size:11px; margin-top:6px; font-weight: 500;">Target: Mark X 🚗</div>
+    <div id="markxMsg" style="font-size: 12px; margin-top: 8px; font-weight: 500;">Target: Mark X 🚗</div>
 </div>
 
 <div class="tabs">
@@ -81,15 +86,15 @@ button:active { filter: brightness(0.8); }
 </div>
 
 <div class="card">
-    <div style="display:flex; justify-content:space-between; align-items: flex-start;">
-        <div><b id="pairName">₿ BTCUSDT</b><div style="font-size:11px; color: var(--text-muted); margin-top: 2px;">Binance · M5 · Closed candles</div></div>
+    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+        <div><b id="pairName" style="font-size: 16px; letter-spacing: 0.3px;">₿ BTCUSDT</b><div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">Binance Feed · M5 Candles Only</div></div>
         <span id="signal" class="signal">WAIT</span>
     </div>
     <div class="price">
         <span id="candlePrice">--</span>
-        <span id="livePrice" class="live-price">Live: --</span>
+        <span id="livePrice" class="live-price">Live market price: --</span>
     </div>
-    <div id="candleTime" style="font-size:11px; color: var(--text-muted);">Last completed candle: --</div>
+    <div id="candleTime" style="font-size: 11px; color: var(--text-muted);">Last snapshot execution time: --</div>
     
     <div class="grid">
         <div class="metric"><small>Wilder RSI (14)</small><strong id="rsi">--</strong></div>
@@ -99,13 +104,13 @@ button:active { filter: brightness(0.8); }
         <div class="metric"><small>Stop Loss</small><strong id="sl">--</strong></div>
         <div class="metric"><small>Take Profit</small><strong id="tp">--</strong></div>
     </div>
-    <div id="reason" style="font-size:12px; margin-top:12px; line-height:1.5; color: var(--text-primary); border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px;">Waiting for market sync arrays...</div>
+    <div id="reason" style="font-size: 12px; margin-top: 14px; line-height: 1.5; color: var(--text-primary); border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px;">Awaiting analytical database connection layers...</div>
 </div>
 
 <div class="panel">
-    <div style="display:flex; justify-content:space-between; align-items: center;"><b>Engine status</b><button id="refresh" style="padding: 6px 12px; font-size: 12px;">Refresh</button></div>
-    <div id="status" class="status">Initializing analytical framework layers...</div>
-    <div id="updated" class="status" style="margin-top:2px;">Last check: --</div>
+    <div style="display: flex; justify-content: space-between; align-items: center;"><b>Engine Matrix</b><button id="refresh" style="padding: 6px 12px; font-size: 12px;">Refresh</button></div>
+    <div id="status" class="status">Initializing terminal script parameters...</div>
+    <div id="updated" class="status" style="margin-top: 2px;">Last check: --</div>
 </div>
 
 <script>
@@ -126,10 +131,10 @@ function setSignal(s, r) {
 }
 
 function fail(m) {
-    ['rsi', 'ema', 'atr', 'sl', 'tp', 'candleTime'].forEach(id => { $(id).textContent = '--'; });
+    ['rsi', 'ema', 'atr', 'sl', 'tp', 'candleTime'].forEach(id => { if($(id)) $(id).textContent = '--'; });
     $('candlePrice').textContent = '--';
-    $('livePrice').textContent = 'Live: --';
-    setSignal('WAIT', 'No signal execution status: ' + m);
+    $('livePrice').textContent = 'Live market price: --';
+    setSignal('WAIT', 'Pipeline status: ' + m);
     $('dot').className = 'dot';
     $('connection').textContent = 'DISCONNECTED';
     $('status').textContent = m;
@@ -180,31 +185,14 @@ function atrWilder(c, p = 14) {
 }
 
 function decide(closes, rsi, e20, e50, atr) {
-    if ([rsi, e20, e50, atr].some(x => !Number.isFinite(x)) || atr <= 0) return { s: 'WAIT', why: 'Calculating indicators data arrays...' };
+    if ([rsi, e20, e50, atr].some(x => x === null || !Number.isFinite(x)) || atr <= 0) return { s: 'WAIT', why: 'Processing market metrics sequence arrays...' };
     const last = closes[closes.length - 1];
     const prev = closes[closes.length - 2];
-    if (last > e20 && e20 > e50 && rsi >= 52 && rsi <= 68 && last > prev) return { s: 'BUY', why: 'EMA uptrend + bullish validation momentum confirmed.' };
-    if (last < e20 && e20 < e50 && rsi >= 32 && rsi <= 48 && last < prev) return { s: 'SELL', why: 'EMA downtrend + bearish market pressure confirmed.' };
-    return { s: 'WAIT', why: 'Trend and indicators are currently in range consolidation. Standby.' };
+    if (last > e20 && e20 > e50 && rsi >= 52 && rsi <= 68 && last > prev) return { s: 'BUY', why: 'EMA dynamic upward cross + bullish volume confirmation.' };
+    if (last < e20 && e20 < e50 && rsi >= 32 && rsi <= 48 && last < prev) return { s: 'SELL', why: 'EMA structural downward cross + bearish selling pressure confirmation.' };
+    return { s: 'WAIT', why: 'Indicators and waves are inside range consolidation boundaries.' };
 }
 
 function switchPair(p) {
     currentPair = p;
     document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
-    let cleanId = p.toLowerCase().replace('usdt', '');
-    if ($('tab-' + cleanId)) $('tab-' + cleanId).classList.add('active');
-    $('pairName').textContent = p === 'EURUSDT' ? '€$ EURUSD' : p === 'PAXGUSDT' ? 'Au GOLD' : '₿ BTCUSDT';
-    loadData();
-}
-
-function addFund() {
-    let v = parseFloat($('fundInput').value);
-    if (isNaN(v)) return;
-    let cur = parseFloat(localStorage.getItem('markx') || '0');
-    cur += v;
-    localStorage.setItem('markx', cur.toString());
-    $('fundInput').value = '';
-    updateFund();
-}
-
-// Clear fund validation triggers safely
