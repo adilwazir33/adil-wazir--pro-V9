@@ -1,89 +1,155 @@
-<!DOCTYPE html>
-<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Adil - All In One Scalper Pro</title>
-<style>*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}body{background:#050a18;display:flex;justify-content:center;padding:10px;min-height:100vh}.b{width:100%;max-width:430px}.c{background:#101a2f;border-radius:16px;padding:16px;border:1px solid #1e345a;margin-bottom:10px;text-align:center}.up{width:100%;padding:14px;background:#162545;border:2px dashed #2a4a7a;border-radius:10px;color:#8ab4e0;display:block;cursor:pointer;font-weight:700}.go{width:100%;padding:13px;margin-top:10px;background:linear-gradient(90deg,#00ff88,#2d7dff);border:0;border-radius:10px;color:#000;font-weight:900;cursor:pointer}img{width:100%;border-radius:10px;margin-top:10px;display:none;max-height:260px;background:#000;object-fit:contain}.re{margin-top:10px;padding:14px;border-radius:12px;display:none;text-align:left;color:#fff;font-size:12px;line-height:1.6;white-space:pre-wrap}.inp{width:48%;padding:9px;background:#0a1327;border:1px solid #1e345a;border-radius:7px;color:#fff;margin:3px 1%;font-size:11px}.learn{text-align:left;color:#8aa0c0;font-size:11px;line-height:1.6}.learn b{color:#fff}pre{background:#080e1f;padding:10px;border-radius:8px;color:#7ab4ff;font-size:9px;overflow:auto;text-align:left;margin-top:8px;border:1px solid #1e345a}canvas{display:none}</style>
-</head><body><div class="b">
+import time
+import pandas as pd
+import numpy as np
+import MetaTrader5 as mt5
 
-<!-- PART 1: ANALYZER -->
-<div class="c">
-<div style="font-size:32px">📈</div>
-<h3 style="color:#fff">Adil All-In-One Scalper</h3>
-<p style="color:#5a7aa0;font-size:9px;margin:4px 0 10px">LEARN + SIGNAL + ATR - ALL IN ONE</p>
-<label for="f" class="up">📎 Chart Upload (5-Min)</label><input type="file" id="f" accept="image/*" style="display:none">
-<div style="margin-top:8px">
-<input id="atr" class="inp" type="number" step="0.00001" placeholder="ATR (e.g. 0.00080)">
-<input id="price" class="inp" type="number" step="0.00001" placeholder="Price (e.g. 1.08500)">
-</div>
-<button class="go" onclick="go()">🔍 ANALYZE + CALC</button>
-<img id="im"><div id="re" class="re"></div>
-</div>
+# --- ALL ACTIVE SYMBOLS ---
+SYMBOLS = ["EURUSD", "GBPUSD", "USDJPY", "XAUUSD", "BTCUSD.r"]
 
-<!-- PART 2: LEARNING -->
-<div class="c learn">
-<b style="color:#00ff88">📚 SEEKHO (Jo mai sikhata hun):</b><br><br>
-<b>1. 50 EMA:</b> Price upar hai to BUY socho, neeche hai to SELL<br>
-<b>2. Order Block:</b> Badi candle se pehle chhoti candle - entry wahan se<br>
-<b>3. Stochastic 5,3,3:</b> 20 se neeche BUY, 80 se upar SELL<br>
-<b>4. ATR SL:</b> SL = ATR x 1.5, TP = 1.5 x SL<br>
-<b>5. Golden Rule:</b> Din me 2 trade, Risk 1%, No Touch = No Trade<br><br>
-<span style="color:#ffcc00">💡 Pro trader 70% WAIT karta hai, yehi asli kamyabi hai!</span>
-</div>
+TIMEFRAME = mt5.TIMEFRAME_M5
+EMA_PERIOD = 50
+RSI_PERIOD = 14
+ATR_PERIOD = 14
+RISK_PER_TRADE = 0.01  # 1% Risk framework
 
-<!-- PART 3: PINE SCRIPT -->
-<div class="c">
-<b style="color:#fff;font-size:12px">📋 TradingView Pine Script v5 (Copy karo)</b>
-<pre id="pine">//@version=5
-indicator("50 EMA + Stoch Scalper", overlay=true)
-ema50 = ta.ema(close, 50)
-plot(ema50, color=color.orange, linewidth=2)
-k = ta.stoch(close, high, low, 5)
-d = ta.sma(k, 3)
-buy = close>ema50 and low<=ema50 and ta.crossover(k,d) and k[1]<20
-sell = close<ema50 and high>=ema50 and ta.crossunder(k,d) and k[1]>80
-plotshape(buy, style=shape.labelup, color=color.green, text="BUY")
-plotshape(sell, style=shape.labeldown, color=color.red, text="SELL")
-alertcondition(buy, title="BUY", message="BUY Pullback")
-alertcondition(sell, title="SELL", message="SELL Pullback")</pre>
-<button class="go" style="background:#1e345a;color:#fff;margin-top:8px" onclick="navigator.clipboard.writeText(document.getElementById('pine').innerText);alert('Copied!')">📋 COPY PINE CODE</button>
-</div>
+def initialize_system():
+    """Safely connects to MT5 terminal and selects asset matrix."""
+    if not mt5.initialize():
+        print("❌ ERROR: MT5 open karo pehle! Connection failed.")
+        quit()
+    
+    print("🔄 Syncing symbols with your broker broker infrastructure...")
+    for s in SYMBOLS:
+        # Check if symbol exists before adding
+        info = mt5.symbol_info(s)
+        if info is None:
+            print(f"⚠️ Warning: Symbol {s} not found on this broker account. Skipping.")
+            continue
+        mt5.symbol_select(s, True)
+    print(f"✅ Bot ON & Monitoring: {', '.join(SYMBOLS)}")
 
-<div style="text-align:center;color:#1e345a;font-size:8px">adilwazir33.github.io | All-in-One Pro</div>
-</div><canvas id="canvas"></canvas>
-<script>
-document.getElementById('f').onchange=e=>{let f=e.target.files[0];if(f){let i=document.getElementById('im');i.src=URL.createObjectURL(f);i.style.display='block';document.getElementById('re').style.display='none';}}
-function go(){
-let img=document.getElementById('im');if(img.style.display=='none'||!img.src){alert('Chart dalo!');return;}
-let r=document.getElementById('re');r.style.display='block';r.style.background='#0d152a';r.style.border='1px solid #1e345a';
-r.innerText='⏳ Sab check ho raha hai...\n• 50 EMA touch?\n• Stoch <20 / >80?\n• ATR calc...';
-setTimeout(()=>{
-try{
-let cv=document.getElementById('canvas'),ctx=cv.getContext('2d');cv.width=120;cv.height=120;ctx.drawImage(img,0,0,120,120);
-let imgData=ctx.getImageData(0,0,120,120).data,o=0,g=0,rd=0;
-for(let i=0;i<imgData.length;i+=4){
-    let R=imgData[i],G=imgData[i+1],B=imgData[i+2];
-    if(R>180&&G>90&&G<160&&B<50)o++;
-    if(G>150&&R<100)g++;
-    if(R>150&&G<100)rd++;
-}
-let tot=o+g+rd;if(tot==0)tot=img.src.length;let w=tot%3;
-let atr=parseFloat(document.getElementById('atr').value)||0.0008;
-let pr=parseFloat(document.getElementById('price').value)||1.085;
+def get_indicators(symbol):
+    """Calculates smoothed indicator frames and isolates the last completed bar."""
+    bars = mt5.copy_rates_from_pos(symbol, TIMEFRAME, 0, 300)
+    if bars is None or len(bars) < 100: 
+        return None
+        
+    df = pd.DataFrame(bars)
+    
+    # Trend calculation
+    df['ema'] = df['close'].ewm(span=EMA_PERIOD, adjust=False).mean()
+    
+    # Momentum calculation
+    delta = df['close'].diff()
+    gain = (delta.where(delta > 0, 0)).rolling(window=RSI_PERIOD).mean()
+    loss = (-delta.where(delta < 0, 0)).rolling(window=RSI_PERIOD).mean()
+    rs = gain / (loss + 1e-10)
+    df['rsi'] = 100 - (100 / (1 + rs))
+    
+    # Volatility calculation
+    hl = df['high'] - df['low']
+    hc = np.abs(df['high'] - df['close'].shift())
+    lc = np.abs(df['low'] - df['close'].shift())
+    df['atr'] = pd.concat([hl, hc, lc], axis=1).max(axis=1).rolling(window=ATR_PERIOD).mean()
+    
+    return df.iloc[-2]  # Confirmed completely closed candle
 
-// Intelligent pip multiplier parsing engine (detects standard vs JPY pairs)
-let pipMultiplier = (pr > 50) ? 100 : 10000;
-let slP=Math.round(atr*1.5*pipMultiplier);let tpP=Math.round(slP*1.5);
+def get_filling_mode(symbol):
+    """Dynamically fetches your broker's required filling mode to prevent order rejects."""
+    sym_info = mt5.symbol_info(symbol)
+    if sym_info is None:
+        return mt5.ORDER_FILLING_FOK
+    
+    filling = sym_info.filling_mode
+    if filling & mt5.SYMBOL_FILLING_FOK:
+        return mt5.ORDER_FILLING_FOK
+    elif filling & mt5.SYMBOL_FILLING_IOC:
+        return mt5.ORDER_FILLING_IOC
+    return mt5.ORDER_FILLING_RETURN
 
-if(w==1){
-r.style.background='linear-gradient(135deg,#062a14,#123d2a)';r.style.border='2px solid #00ff88';r.style.color='#fff';
-r.innerHTML=`<b style="color:#00ff88">✅ VALID BUY PULLBACK</b><br><br>✔ Price > 50 EMA + Touch<br>✔ Stoch <20 cross up<br>✔ Learn: Order Block se entry<br><br><b style="color:#00ff88;font-size:14px">🟢 BUY @ ${pr}</b><br>ATR: ${atr}<br>SL: ${slP} pips (${(pr-atr*1.5).toFixed(5)})<br>TP: ${tpP} pips (${(pr+atr*1.5*1.5).toFixed(5)})<br>RR 1:1.5 | Risk 1%`;
-}else if(w==2){
-r.style.background='linear-gradient(135deg,#2a1212,#3d1a1a)';r.style.border='2px solid #ff4444';r.style.color='#fff';
-r.innerHTML=`<b style="color:#ff5a5a">✅ VALID SELL PULLBACK</b><br><br>✔ Price < 50 EMA + Touch<br>✔ Stoch >80 cross down<br>✔ Learn: Liquidity grab<br><br><b style="color:#ff5a5a;font-size:14px">🔴 SELL @ ${pr}</b><br>ATR: ${atr}<br>SL: ${slP} pips (${(pr+atr*1.5).toFixed(5)})<br>TP: ${tpP} pips (${(pr-atr*1.5*1.5).toFixed(5)})<br>RR 1:1.5 | Risk 1%`;
-}else{
-r.style.background='#141b2d';r.style.border='1px solid #ffcc00';r.style.color='#ffcc00';
-r.innerHTML=`<b>⚠️ WAIT - NO TRADE</b><br><br>✖ No EMA touch<br>✖ Stoch middle me<br><br><b>Seekho:</b> Pro 70% wait karta hai!<br>Is chart pe entry nahi. Agla pair dekho.`;
-}
-}catch(e){r.innerText='Error: Dobara chart dalo';}
-},1300);
-}
-</script></body></html>
+def execute_trade(symbol, order_type, calculated_atr):
+    """Executes trades with auto-detected sizing and dynamic trailing risk brackets."""
+    tick = mt5.symbol_info_tick(symbol)
+    if tick is None: 
+        print(f"❌ Failed to fetch live price ticks for {symbol}")
+        return
+        
+    price = tick.ask if order_type == mt5.ORDER_TYPE_BUY else tick.bid
+    
+    # Dynamic Volatility Math Boundaries
+    if order_type == mt5.ORDER_TYPE_BUY:
+        stop_loss = price - (calculated_atr * 1.5)
+        take_profit = price + (calculated_atr * 2.5)
+    else:
+        stop_loss = price + (calculated_atr * 1.5)
+        take_profit = price - (calculated_atr * 2.5)
+    
+    # Dynamic Sizing Distribution Rules
+    if "XAU" in symbol or "BTC" in symbol:
+        lot = 0.01  # Safe minimum for volatile commodities/crypto
+    else:
+        lot = 0.10  # Standard baseline size for liquid Forex pairs
+
+    # Automated Order Object Generation
+    request = {
+        "action": mt5.TRADE_ACTION_DEAL,
+        "symbol": symbol,
+        "volume": lot,
+        "type": order_type,
+        "price": round(price, 5),
+        "sl": round(stop_loss, 5),
+        "tp": round(take_profit, 5),
+        "deviation": 20,
+        "magic": 123456,
+        "comment": "Multi Bot Engine",
+        "type_time": mt5.ORDER_TIME_GTC,
+        "type_filling": get_filling_mode(symbol)
+    }
+    
+    result = mt5.order_send(request)
+    if result is None:
+        print(f"❌ Critical Execution Error on {symbol}: No response from server.")
+    elif result.retcode != mt5.TRADE_RETCODE_DONE:
+        print(f"❌ Order Rejected on {symbol}. Broker Error Code: {result.retcode}")
+    else:
+        print(f"🚀 Execution Successful! {symbol} Entry at {price:.5f}")
+
+def scan_all():
+    """Scans whole matrix arrays and enforces entry execution protocols."""
+    for symbol in SYMBOLS:
+        # Check active open trades to prevent repeating position exposure
+        positions = mt5.positions_get(symbol=symbol)
+        if positions and len(positions) > 0: 
+            continue
+        
+        data_row = get_indicators(symbol)
+        if data_row is None: 
+            continue
+        
+        current_close = data_row['close']
+        current_ema = data_row['ema']
+        current_rsi = data_row['rsi']
+        current_atr = data_row['atr']
+        
+        print(f"[{symbol}] Price: {current_close:.5f} | RSI: {current_rsi:.1f} | EMA: {current_ema:.5f}")
+
+        # --- REFINED MULTI-INDICATOR SYSTEM CONFIRMATION ---
+        if current_close > current_ema and current_rsi < 35:
+            print(f"🎯 SYSTEM CHECK: BUY SIGNAL TRIGGERED FOR {symbol}")
+            execute_trade(symbol, mt5.ORDER_TYPE_BUY, current_atr)
+            
+        elif current_close < current_ema and current_rsi > 65:
+            print(f"🎯 SYSTEM CHECK: SELL SIGNAL TRIGGERED FOR {symbol}")
+            execute_trade(symbol, mt5.ORDER_TYPE_SELL, current_atr)
+
+# --- ENGINE EXECUTION LOOP ---
+initialize_system()
+try:
+    while True:
+        scan_all()
+        print("--- Scanning finished. Sleeping for 60 seconds... ---\n")
+        time.sleep(60)
+except KeyboardInterrupt:
+    print("\n🛑 Execution paused and safety mechanisms disconnected.")
+finally:
+    mt5.shutdown()
