@@ -1,7 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#080d18">
+<title>Adil Wazir M5 PRO - Mark X Edition</title>
+<style>
+:root {
+    --bg-main: #080d18;
+    --bg-card: #141d30;
+    --bg-metric: #0b1323;
+    --border-color: #283651;
+    --text-primary: #edf4ff;
+    --text-muted: #9baac3;
+    --color-accent: #00d4ff;
+    --color-buy: #078459;
+    --color-sell: #bf334a;
+    --color-wait: #56647a;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body {
+    margin: 0; padding: 14px; background: var(--bg-main); color: var(--text-primary);
+    font-family: Arial, sans-serif; max-width: 520px; margin-inline: auto; padding-bottom: 30px;
+}
+.header, .card, .panel {
+    background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 14px;
+    padding: 16px; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.header { text-align: center; }
+h1 { font-size: 20px; color: var(--color-accent); margin: 0 0 8px; font-weight: bold; }
+.tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+.tab {
+    flex: 1; padding: 10px; border-radius: 8px; background: #1c2942; border: 1px solid var(--border-color);
+    color: var(--text-muted); font-weight: bold; font-size: 13px; cursor: pointer; transition: all 0.2s;
+}
+.tab.active { background: #087eac; color: #fff; border-color: var(--color-accent); }
+.price { font-size: 24px; font-family: monospace; font-weight: bold; margin: 12px 0; }
+.signal { display: inline-block; padding: 7px 15px; border-radius: 7px; font-weight: bold; background: var(--color-wait); color: #fff; min-width: 75px; text-align: center; }
+.signal.buy { background: var(--color-buy); }
+.signal.sell { background: var(--color-sell); }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+.metric { padding: 12px; background: var(--bg-metric); border-radius: 9px; border: 1px solid rgba(255,255,255,0.02); }
+.metric small { color: var(--text-muted); font-size: 11px; display: block; margin-bottom: 5px; text-transform: uppercase; }
+.metric strong { font-size: 14px; font-family: monospace; color: var(--text-primary); }
+.live-price { font-size: 13px; color: #00e59a; margin-top: 4px; display: block; font-weight: normal; animation: blink 1s infinite; }
+@keyframes blink { 50% { opacity: 0.4; } }
+.dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #e7a83c; margin-right: 6px; transition: all 0.3s; }
+.dot.active { background: #00e59a; box-shadow: 0 0 8px #00e59a; }
+input { background: var(--bg-metric); border: 1px solid var(--border-color); color: #fff; padding: 8px; border-radius: 6px; width: 105px; text-align: center; font-size: 14px; }
+button { background: #087eac; color: white; border: 0; border-radius: 8px; padding: 10px 14px; font-weight: bold; cursor: pointer; }
+button:active { filter: brightness(0.8); }
+.markx { background: linear-gradient(90deg, #078459, #087eac); padding: 14px; border-radius: 12px; margin-bottom: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
+.status { font-size: 11px; color: var(--text-muted); margin-top: 8px; line-height: 1.4; }
+</style>
+</head>
+<body>
+
+<div class="header">
+    <h1>💎 ADIL WAZIR M5 PRO</h1>
+    <small style="display: flex; align-items: center; justify-content: center;"><span id="dot" class="dot"></span><span id="connection" style="color: var(--text-muted);">Connecting to core nodes...</span></small>
+</div>
+
+<div class="markx">
+    <div style="font-size:12px; opacity:0.9; font-weight: bold; letter-spacing: 0.5px;">MARK X FUND</div>
+    <div style="font-size:26px; font-weight:bold; margin:6px 0; font-family: monospace;">$<span id="fund">25,000.00</span></div>
+    <div style="display:flex; gap:6px; justify-content:center; margin-top: 8px;">
+        <input id="fundInput" type="number" step="any" placeholder="Amount">
+        <button onclick="addFund()">+ ADD</button>
+        <button onclick="resetFund()" style="background: #283651;">Reset</button>
+    </div>
+    <div id="markxMsg" style="font-size:11px; margin-top:6px; font-weight: 500;">Target: Mark X 🚗</div>
+</div>
+
+<div class="tabs">
+    <button class="tab active" id="tab-btc" onclick="switchPair('BTCUSDT')">BTC</button>
+    <button class="tab" id="tab-paxg" onclick="switchPair('PAXGUSDT')">GOLD</button>
+    <button class="tab" id="tab-eur" onclick="switchPair('EURUSDT')">EURUSD</button>
+</div>
+
+<div class="card">
+    <div style="display:flex; justify-content:space-between; align-items: flex-start;">
+        <div><b id="pairName">₿ BTCUSDT</b><div style="font-size:11px; color: var(--text-muted); margin-top: 2px;">Binance · M5 · Closed candles</div></div>
+        <span id="signal" class="signal">WAIT</span>
+    </div>
+    <div class="price">
+        <span id="candlePrice">--</span>
+        <span id="livePrice" class="live-price">Live: --</span>
+    </div>
+    <div id="candleTime" style="font-size:11px; color: var(--text-muted);">Last completed candle: --</div>
+    
+    <div class="grid">
+        <div class="metric"><small>Wilder RSI (14)</small><strong id="rsi">--</strong></div>
+        <div class="metric"><small>EMA 20 / 50</small><strong id="ema">--</strong></div>
+        <div class="metric"><small>ATR (14)</small><strong id="atr">--</strong></div>
+        <div class="metric"><small>Risk : Reward</small><strong>1 : 2</strong></div>
+        <div class="metric"><small>Stop Loss</small><strong id="sl">--</strong></div>
+        <div class="metric"><small>Take Profit</small><strong id="tp">--</strong></div>
+    </div>
+    <div id="reason" style="font-size:12px; margin-top:12px; line-height:1.5; color: var(--text-primary); border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px;">Waiting for market sync arrays...</div>
+</div>
+
+<div class="panel">
+    <div style="display:flex; justify-content:space-between; align-items: center;"><b>Engine status</b><button id="refresh" style="padding: 6px 12px; font-size: 12px;">Refresh</button></div>
+    <div id="status" class="status">Initializing analytical framework layers...</div>
+    <div id="updated" class="status" style="margin-top:2px;">Last check: --</div>
+</div>
+
+<script>
 'use strict';
 let currentPair = 'BTCUSDT';
 let busy = false;
-const \$ = id => document.getElementById(id);
+const $ = id => document.getElementById(id);
 
 function fmt(n) {
     let dec = (currentPair === 'EURUSDT') ? 5 : 2;
@@ -9,16 +120,19 @@ function fmt(n) {
 }
 
 function setSignal(s, r) {
-    \$('signal').textContent = s;
-    \(('signal').className = 'signal' + (s === 'BUY' ? ' buy' : s === 'SELL' ? ' sell' : '');\)('reason').textContent = r;
+    $('signal').textContent = s;
+    $('signal').className = 'signal ' + s.toLowerCase();
+    $('reason').textContent = r;
 }
 
 function fail(m) {
-    ['rsi', 'ema', 'atr', 'sl', 'tp', 'candleTime'].forEach(id => { \$(id).textContent = '--'; });
-    \(('candlePrice').textContent = '--';\)('livePrice').textContent = 'Live: --';
-    setSignal('WAIT', 'No signal: ' + m);
-    \$('dot').className = 'dot';
-    \(('connection').textContent = 'DISCONNECTED';\)('status').textContent = m;
+    ['rsi', 'ema', 'atr', 'sl', 'tp', 'candleTime'].forEach(id => { $(id).textContent = '--'; });
+    $('candlePrice').textContent = '--';
+    $('livePrice').textContent = 'Live: --';
+    setSignal('WAIT', 'No signal execution status: ' + m);
+    $('dot').className = 'dot';
+    $('connection').textContent = 'DISCONNECTED';
+    $('status').textContent = m;
 }
 
 function rsiWilder(a, p = 14) {
@@ -53,7 +167,6 @@ function emaSeries(a, p) {
     return out;
 }
 
-// Fixed technical index footprint parser
 function atrWilder(c, p = 14) {
     if (c.length < p + 1) return null;
     const tr = [];
@@ -67,148 +180,31 @@ function atrWilder(c, p = 14) {
 }
 
 function decide(closes, rsi, e20, e50, atr) {
-    if ([rsi, e20, e50, atr].some(x => !Number.isFinite(x)) || atr <= 0) return { s: 'WAIT', why: 'Insufficient indicator data.' };
-    const last = closes.at(-1), prev = closes.at(-2);
-    if (last > e20 && e20 > e50 && rsi >= 52 && rsi <= 68 && last > prev) return { s: 'BUY', why: 'EMA uptrend + bullish momentum confirmed.' };
-    if (last < e20 && e20 < e50 && rsi >= 32 && rsi <= 48 && last < prev) return { s: 'SELL', why: 'EMA downtrend + bearish momentum confirmed.' };
-    return { s: 'WAIT', why: 'Trend and momentum do not fully agree.' };
+    if ([rsi, e20, e50, atr].some(x => !Number.isFinite(x)) || atr <= 0) return { s: 'WAIT', why: 'Calculating indicators data arrays...' };
+    const last = closes[closes.length - 1];
+    const prev = closes[closes.length - 2];
+    if (last > e20 && e20 > e50 && rsi >= 52 && rsi <= 68 && last > prev) return { s: 'BUY', why: 'EMA uptrend + bullish validation momentum confirmed.' };
+    if (last < e20 && e20 < e50 && rsi >= 32 && rsi <= 48 && last < prev) return { s: 'SELL', why: 'EMA downtrend + bearish market pressure confirmed.' };
+    return { s: 'WAIT', why: 'Trend and indicators are currently in range consolidation. Standby.' };
 }
 
 function switchPair(p) {
     currentPair = p;
     document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
     let cleanId = p.toLowerCase().replace('usdt', '');
-    if (\(('tab-' + cleanId))\)('tab-' + cleanId).classList.add('active');
-    \(('pairName').textContent = p === 'EURUSDT' ? '€\) EURUSD' : p === 'PAXGUSDT' ? 'Au GOLD' : '₿ BTCUSDT';
+    if ($('tab-' + cleanId)) $('tab-' + cleanId).classList.add('active');
+    $('pairName').textContent = p === 'EURUSDT' ? '€$ EURUSD' : p === 'PAXGUSDT' ? 'Au GOLD' : '₿ BTCUSDT';
     loadData();
 }
 
 function addFund() {
-    let v = parseFloat(\$('fundInput').value);
+    let v = parseFloat($('fundInput').value);
     if (isNaN(v)) return;
     let cur = parseFloat(localStorage.getItem('markx') || '0');
     cur += v;
-    localStorage.setItem('markx', cur);
-    \$('fundInput').value = '';
+    localStorage.setItem('markx', cur.toString());
+    $('fundInput').value = '';
     updateFund();
 }
 
-function resetFund() {
-    if (confirm('Reset?')) {
-        localStorage.setItem('markx', '0');
-        updateFund();
-    }
-}
-
-function updateFund() {
-    let cur = parseFloat(localStorage.getItem('markx') || '0');
-    \(('fund').textContent = (25000 + cur).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });\)('markxMsg').textContent = cur >= 0 ? 'Profit: +\(' + cur.toFixed(2) + ' 🚀' : 'Loss: \)' + cur.toFixed(2);
-}
-updateFund();
-
-async function loadData() {
-    if (busy) return; busy = true; \(('refresh').disabled = true; \)('status').textContent = 'Requesting ' + currentPair + '...';
-    try {
-        const baseKline = `https://binance.com{currentPair}&interval=5m&limit=100`;
-        const urls = [
-            baseKline,
-            `https://binance.vision{currentPair}&interval=5m&limit=100`,
-            `https://allorigins.win{encodeURIComponent(baseKline)}`
-        ];
-        
-        let raw = null;
-        for (const u of urls) {
-            try {
-                const r = await fetch(u, { cache: 'no-store' });
-                if (r.ok) {
-                    let textData = await r.text();
-                    let parsed = JSON.parse(textData);
-                    raw = (parsed && parsed.contents) ? JSON.parse(parsed.contents) : parsed;
-                    if (Array.isArray(raw)) break;
-                }
-            } catch (err) {}
-        }
-        
-        if (!raw || !Array.isArray(raw)) throw new Error('Binance data pipelines rate-limited or blocked');
-        
-        const now = Date.now();
-        
-        // --- 💎 SYSTEM FIX: Fixed index verification boundary maps ---
-        const candles = raw.filter(x => Array.isArray(x) && x.length >= 7 && Number(x[6]) < now && [2, 3, 4].every(i => Number.isFinite(Number(x[i])))).map(x => ({ time: Number(x[6]), high: Number(x[2]), low: Number(x[3]), close: Number(x[4]) }));
-        
-        if (candles.length < 55) throw new Error('Waiting candles stack completion');
-        
-        const closes = candles.map(c => c.close);
-        const rsi = rsiWilder(closes); 
-        const e20s = emaSeries(closes, 20); 
-        const e50s = emaSeries(closes, 50); 
-        const e20 = e20s?.at(-1); 
-        const e50 = e50s?.at(-1); 
-        const atr = atrWilder(candles);
-        
-        if ([rsi, e20, e50, atr].some(x => !Number.isFinite(x))) throw new Error('Indicator calculation loops dropped');
-        
-        const last = candles.at(-1); 
-        const d = decide(closes, rsi, e20, e50, atr);
-        
-        let prefixSymbol = (currentPair === 'EURUSDT') ? '' : '\$';
-        \$('candlePrice').textContent = prefixSymbol + fmt(last.close);
-        \(('rsi').textContent = rsi.toFixed(2);\)('ema').textContent = fmt(e20) + ' / ' + fmt(e50); 
-        \(('atr').textContent = fmt(atr);\)('candleTime').textContent = 'Completed candle time: ' + new Date(last.time).toLocaleTimeString(); 
-        setSignal(d.s, d.why);
-        
-        if (d.s === 'BUY') { 
-            \(('sl').textContent = prefixSymbol + fmt(last.close - atr);\)('tp').textContent = prefixSymbol + fmt(last.close + 2 * atr); 
-        } else if (d.s === 'SELL') { 
-            \(('sl').textContent = prefixSymbol + fmt(last.close + atr);\)('tp').textContent = prefixSymbol + fmt(last.close - 2 * atr); 
-        } else { 
-            \(('sl').textContent = '--';\)('tp').textContent = '--'; 
-        }
-        
-        \$('dot').className = 'dot active'; 
-        \(('connection').textContent = 'Binance API Online';\)('status').textContent = 'Analysis complete.';
-        
-        try {
-            const baseTicker = `https://binance.com{currentPair}`;
-            const tUrls = [baseTicker, `https://allorigins.win{encodeURIComponent(baseTicker)}`];
-            let t = null;
-            for (const u of tUrls) {
-                try {
-                    const rr = await fetch(u, { cache: 'no-store' });
-                    if (rr.ok) {
-                        let tText = await rr.text();
-                        let tParsed = JSON.parse(tText);
-                        t = (tParsed && tParsed.contents) ? JSON.parse(tParsed.contents) : tParsed;
-                        if (t && t.price) break;
-                    }
-                } catch {}
-            }
-            if (t && t.price) \$('livePrice').textContent = 'Live tick: ' + prefixSymbol + fmt(parseFloat(t.price));
-        } catch {}
-    } catch (e) { 
-        fail(e.message); 
-    } finally { 
-        \(('updated').textContent = 'Last check: ' + new Date().toLocaleTimeString();\)('refresh').disabled = false; 
-        busy = false; 
-    }
-}
-
-setInterval(async () => {
-    try {
-        const baseTicker = `https://binance.com{currentPair}`;
-        const r = await fetch(`https://allorigins.win{encodeURIComponent(baseTicker)}`, { cache: 'no-store' });
-        if (r.ok) {
-            let resText = await r.text();
-            let parsedObj = JSON.parse(resText);
-            let d = (parsedObj && parsedObj.contents) ? JSON.parse(parsedObj.contents) : parsedObj;
-            if (d && d.price) {
-                let prefixSymbol = (currentPair === 'EURUSDT') ? '' : '\$';
-                \$('livePrice').textContent = 'Live tick: ' + prefixSymbol + fmt(parseFloat(d.price));
-            }
-        }
-    } catch (e) {}
-}, 2500);
-
-\$('refresh').addEventListener('click', loadData);
-loadData();
-setInterval(loadData, 30000);
+// Clear fund validation triggers safely
