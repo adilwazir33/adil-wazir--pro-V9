@@ -1,122 +1,214 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Adil Wazir M5 PRO - Mark X Edition</title>
-<style>
-*{box-sizing:border-box}body{margin:0;padding:14px;background:#080d18;color:#edf4ff;font-family:Arial;max-width:520px;margin:auto}
-.header,.card,.panel{background:#141d30;border:1px solid #283651;border-radius:14px;padding:16px;margin-bottom:12px}
-.header{text-align:center}h1{font-size:20px;color:#00d4ff;margin:0 0 8px}
-.tabs{display:flex;gap:8px;margin-bottom:12px}.tab{flex:1;padding:10px;border-radius:8px;background:#1c2942;border:1px solid #283651;color:#9baac3;font-weight:bold;cursor:pointer}
-.tab.active{background:#087eac;color:#fff}
-.price{font-size:24px;font-family:monospace;font-weight:bold;margin:12px 0}
-.signal{display:inline-block;padding:7px 15px;border-radius:7px;font-weight:bold;background:#56647a}
-.signal.buy{background:#078459;color:#fff}.signal.sell{background:#bf334a;color:#fff}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
-.metric{padding:12px;background:#0b1323;border-radius:9px}
-.metric small{color:#9baac3;font-size:11px;display:block;margin-bottom:5px}
-.metric strong{font-size:14px;font-family:monospace}
-.live-price{font-size:13px;color:#00e59a;margin-top:4px;display:block;animation:blink 1.2s infinite}
-@keyframes blink{50%{opacity:0.4}}
-.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#e7a83c;margin-right:6px}.dot.active{background:#00e59a}
-input{background:#0b1323;border:1px solid #283651;color:#fff;padding:8px;border-radius:6px;width:100px;text-align:center}
-button{background:#087eac;color:white;border:0;border-radius:8px;padding:10px 14px;font-weight:bold;cursor:pointer}
-.markx{background:linear-gradient(90deg,#078459,#087eac);padding:14px;border-radius:12px;margin-bottom:12px;text-align:center}
-</style>
-</head>
-<body>
-<div class="header"><h1>💎 ADIL WAZIR M5 PRO</h1><span id="dot" class="dot"></span><span id="connection">Connecting...</span></div>
-
-<div class="markx">
-<div style="font-size:12px;opacity:0.9">MARK X FUND</div>
-<div style="font-size:28px;font-weight:bold;margin:6px 0">$<span id="fund">25,000.00</span> / $25,000</div>
-<div style="display:flex;gap:6px;justify-content:center"><input id="fundInput" type="number" step="any" placeholder="Amount"><button onclick="addFund()">+ ADD</button><button onclick="resetFund()">Reset</button></div>
-<div id="markxMsg" style="font-size:11px;margin-top:6px">Target: Mark X 🚗</div>
-</div>
-
-<div class="tabs">
-<button class="tab active" id="tab-btc" onclick="switchPair('BTCUSDT')">BTC</button>
-<button class="tab" id="tab-paxg" onclick="switchPair('PAXGUSDT')">GOLD</button>
-<!-- FIX 1: Map name strictly to genuine Binance EURUSDT symbol asset -->
-<button class="tab" id="tab-eur" onclick="switchPair('EURUSDT')">EURUSD</button>
-</div>
-
-<div class="card">
-<div style="display:flex;justify-content:space-between"><div><b id="pairName">₿ BTCUSDT</b><div style="font-size:11px;color:#9baac3">Binance · M5 · Closed candles</div></div><span id="signal" class="signal">WAIT</span></div>
-<div class="price"><span id="candlePrice">--</span><span id="livePrice" class="live-price">Live: --</span></div>
-<div id="candleTime" style="font-size:11px;color:#9baac3">Last completed candle: --</div>
-<div class="grid">
-<div class="metric"><small>Wilder RSI (14)</small><strong id="rsi">--</strong></div>
-<div class="metric"><small>EMA 20 / 50</small><strong id="ema">--</strong></div>
-<div class="metric"><small>ATR (14)</small><strong id="atr">--</strong></div>
-<div class="metric"><small>Risk : Reward</small><strong>1 : 2</strong></div>
-<div class="metric"><small>Stop Loss</small><strong id="sl">--</strong></div>
-<div class="metric"><small>Take Profit</small><strong id="tp">--</strong></div>
-</div>
-<div id="reason" style="font-size:12px;margin-top:12px;line-height:1.5">Waiting...</div>
-</div>
-
-<div class="panel"><div style="display:flex;justify-content:space-between"><b>Engine</b><button id="refresh">Refresh</button></div><div id="status" style="font-size:11px;color:#9baac3;margin-top:8px">Initializing...</div><div id="updated" style="font-size:11px;color:#9baac3">Last check: --</div></div>
-
-<script>
 'use strict';
-let currentPair='BTCUSDT';
-let busy=false;
-const $=id=>document.getElementById(id);
+let currentPair = 'BTCUSDT';
+let busy = false;
+const \$ = id => document.getElementById(id);
 
-// Precision adjusting layout rules formatting parameters
-function fmt(n) { 
-  let dec = (currentPair === 'EURUSDT') ? 5 : 2;
-  return Number.isFinite(n) ? n.toLocaleString('en-US',{minimumFractionDigits:dec,maximumFractionDigits:dec}) : '--'; 
+function fmt(n) {
+    let dec = (currentPair === 'EURUSDT') ? 5 : 2;
+    return Number.isFinite(n) ? n.toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec }) : '--';
 }
 
-function setSignal(s,r){$('signal').textContent=s;$('signal').className='signal'+(s==='BUY'?' buy':s==='SELL'?' sell':'');$('reason').textContent=r;}
-function fail(m){['rsi','ema','atr','sl','tp','candleTime'].forEach(id=>$(id).textContent='--');$('candlePrice').textContent='--';$('livePrice').textContent='Live: --';setSignal('WAIT','No signal: '+m);$('dot').className='dot';$('connection').textContent='DISCONNECTED';$('status').textContent=m;}
-
-// True mathematical model tracking loops
-function emaSeries(a,p){if(a.length<p)return null;const k=2/(p+1);let e=a.slice(0,p).reduce((x,y)=>x+y,0)/p;const out=Array(p-1).fill(null);out.push(e);for(let i=p;i<a.length;i++){e=a[i]*k+e*(1-k);out.push(e);}return out;}
-function rsiWilder(a,p=14){if(a.length<p+1)return null;let g=0,l=0;for(let i=1;i<=p;i++){const d=a[i]-a[i-1];if(d>0)g+=d;else l-=d;}let ag=g/p,al=l/p;for(let i=p+1;i<a.length;i++){const d=a[i]-a[i-1];ag=(ag*(p-1)+Math.max(0,d))/p;al=(al*(p-1)+Math.max(0,-d))/p;}if(ag===0&&al===0)return 50;if(al===0)return 100;if(ag===0)return 0;return 100-100/(1+ag/al);}
-function atrWilder(c,p=14){if(c.length<p+1)return null;const tr=[];for(let i=1;i<c.length;i++){const x=c[i],pc=c[i-1].close;tr.push(Math.max(x.high-x.low,Math.abs(x.high-pc),Math.abs(x.low-pc)));}let v=tr.slice(0,p).reduce((a,b)=>a+b,0)/p;for(let i=p;i<tr.length;i++)v=(v*(p-1)+tr[i])/p;return v;}
-
-// FIX 2: Correct structural call signature matching
-function decide(closes,rsi,e20,e50,atr){if([rsi,e20,e50,atr].some(x=>!Number.isFinite(x))||atr<=0) return {s:'WAIT',why:'Insufficient structural data.'};const last=closes.at(-1),prev=closes.at(-2);if(last>e20&&e20>e50&&rsi>=52&&rsi<=68&&last>prev) return {s:'BUY',why:'EMA uptrend + bullish momentum confirmed.'};if(last<e20&&e20<e50&&rsi>=32&&rsi<=48&&last<prev) return {s:'SELL',why:'EMA downtrend + bearish momentum confirmed.'};return {s:'WAIT',why:'Trend and momentum do not fully agree.'};}
-
-function switchPair(p){
-  currentPair=p;
-  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
-  // Safe layout target configurations mapping string ids
-  let cleanId = p.toLowerCase().replace('usdt','');
-  if($( 'tab-' + cleanId )) $('tab-'+cleanId).classList.add('active');
-  $('pairName').textContent= (p === 'EURUSDT') ? '€$ EURUSD' : (p === 'PAXGUSDT') ? 'Au XAUUSD (Gold)' : '₿ BTCUSDT';
-  loadData();
+function setSignal(s, r) {
+    \$('signal').textContent = s;
+    \(('signal').className = 'signal' + (s === 'BUY' ? ' buy' : s === 'SELL' ? ' sell' : '');\)('reason').textContent = r;
 }
 
-function addFund(){let v=parseFloat($('fundInput').value);if(isNaN(v))return;let cur=parseFloat(localStorage.getItem('markx')||'0');cur+=v;localStorage.setItem('markx',cur);$('fundInput').value='';updateFund();}
-function resetFund(){if(confirm('Reset funding records back to zero?')) { localStorage.setItem('markx','0'); updateFund(); }}
-function updateFund(){let cur=parseFloat(localStorage.getItem('markx')||'0');$('fund').textContent=(25000+cur).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});if(cur>=0) $('markxMsg').textContent='Profit: +$'+cur.toLocaleString('en-US',{minimumFractionDigits:2})+' 🚀';else $('markxMsg').textContent='Loss: -$'+Math.abs(cur).toLocaleString('en-US',{minimumFractionDigits:2});}
+function fail(m) {
+    ['rsi', 'ema', 'atr', 'sl', 'tp', 'candleTime'].forEach(id => { \$(id).textContent = '--'; });
+    \(('candlePrice').textContent = '--';\)('livePrice').textContent = 'Live: --';
+    setSignal('WAIT', 'No signal: ' + m);
+    \$('dot').className = 'dot';
+    \(('connection').textContent = 'DISCONNECTED';\)('status').textContent = m;
+}
+
+function rsiWilder(a, p = 14) {
+    if (a.length < p + 1) return null;
+    let g = 0, l = 0;
+    for (let i = 1; i <= p; i++) {
+        const d = a[i] - a[i - 1];
+        if (d > 0) g += d; else l -= d;
+    }
+    let ag = g / p, al = l / p;
+    for (let i = p + 1; i < a.length; i++) {
+        const d = a[i] - a[i - 1];
+        ag = (ag * (p - 1) + Math.max(0, d)) / p;
+        al = (al * (p - 1) + Math.max(0, -d)) / p;
+    }
+    if (ag === 0 && al === 0) return 50;
+    if (al === 0) return 100;
+    if (ag === 0) return 0;
+    return 100 - 100 / (1 + ag / al);
+}
+
+function emaSeries(a, p) {
+    if (a.length < p) return null;
+    const k = 2 / (p + 1);
+    let e = a.slice(0, p).reduce((x, y) => x + y, 0) / p;
+    const out = Array(p - 1).fill(null);
+    out.push(e);
+    for (let i = p; i < a.length; i++) {
+        e = a[i] * k + e * (1 - k);
+        out.push(e);
+    }
+    return out;
+}
+
+// Fixed technical index footprint parser
+function atrWilder(c, p = 14) {
+    if (c.length < p + 1) return null;
+    const tr = [];
+    for (let i = 1; i < c.length; i++) {
+        const x = c[i], pc = c[i - 1].close;
+        tr.push(Math.max(x.high - x.low, Math.abs(x.high - pc), Math.abs(x.low - pc)));
+    }
+    let v = tr.slice(0, p).reduce((a, b) => a + b, 0) / p;
+    for (let i = p; i < tr.length; i++) v = (v * (p - 1) + tr[i]) / p;
+    return v;
+}
+
+function decide(closes, rsi, e20, e50, atr) {
+    if ([rsi, e20, e50, atr].some(x => !Number.isFinite(x)) || atr <= 0) return { s: 'WAIT', why: 'Insufficient indicator data.' };
+    const last = closes.at(-1), prev = closes.at(-2);
+    if (last > e20 && e20 > e50 && rsi >= 52 && rsi <= 68 && last > prev) return { s: 'BUY', why: 'EMA uptrend + bullish momentum confirmed.' };
+    if (last < e20 && e20 < e50 && rsi >= 32 && rsi <= 48 && last < prev) return { s: 'SELL', why: 'EMA downtrend + bearish momentum confirmed.' };
+    return { s: 'WAIT', why: 'Trend and momentum do not fully agree.' };
+}
+
+function switchPair(p) {
+    currentPair = p;
+    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+    let cleanId = p.toLowerCase().replace('usdt', '');
+    if (\(('tab-' + cleanId))\)('tab-' + cleanId).classList.add('active');
+    \(('pairName').textContent = p === 'EURUSDT' ? '€\) EURUSD' : p === 'PAXGUSDT' ? 'Au GOLD' : '₿ BTCUSDT';
+    loadData();
+}
+
+function addFund() {
+    let v = parseFloat(\$('fundInput').value);
+    if (isNaN(v)) return;
+    let cur = parseFloat(localStorage.getItem('markx') || '0');
+    cur += v;
+    localStorage.setItem('markx', cur);
+    \$('fundInput').value = '';
+    updateFund();
+}
+
+function resetFund() {
+    if (confirm('Reset?')) {
+        localStorage.setItem('markx', '0');
+        updateFund();
+    }
+}
+
+function updateFund() {
+    let cur = parseFloat(localStorage.getItem('markx') || '0');
+    \(('fund').textContent = (25000 + cur).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });\)('markxMsg').textContent = cur >= 0 ? 'Profit: +\(' + cur.toFixed(2) + ' 🚀' : 'Loss: \)' + cur.toFixed(2);
+}
 updateFund();
 
-async function loadData(){
- if(busy)return;busy=true;$('refresh').disabled=true;$('status').textContent='Requesting '+currentPair+'...';
- try{
-  const urls=[`https://api.binance.com/api/v3/klines?symbol=${currentPair}&interval=5m&limit=100`,`https://data-api.binance.vision/api/v3/klines?symbol=${currentPair}&interval=5m&limit=100`];
-  let raw=null;for(const u of urls){try{const r=await fetch(u,{cache:'no-store'});if(r.ok){raw=await r.json();break;}}catch{}}
-  if(!raw) throw new Error('Binance connection blocked');
-  
-  const now=Date.now();
-  // Strip out ongoing live open candle to prevent index lag anomalies
-  const candles=raw.filter(x=>Array.isArray(x)&&x.length>=7&&Number.isFinite(Number(x[6]))&&Number(x[6])<now).map(x=>({time:Number(x[6]),high:Number(x[2]),low:Number(x[3]),close:Number(x[4])}));
-  if(candles.length<55) throw new Error('Waiting for stable historical candles profile stack');
-  
-  const closes=candles.map(c=>c.close);const rsi=rsiWilder(closes);const e20s=emaSeries(closes,20);const e50s=emaSeries(closes,50);const e20=e20s?.at(-1);const e50=e50s?.at(-1);const atr=atrWilder(candles);
-  if([rsi,e20,e50,atr].some(x=>!Number.isFinite(x))) throw new Error('Indicator calculations unavailable');
-  
-  const last=candles.at(-1);const d=decide(closes,rsi,e20,e50,atr);
-  $('candlePrice').textContent='$'+fmt(last.close);$('rsi').textContent=rsi.toFixed(2);$('ema').textContent=fmt(e20)+' / '+fmt(e50);$('atr').textContent=fmt(atr);
-  $('candleTime').textContent='Completed candle sync time: '+new Date(last.time).toLocaleTimeString();setSignal(d.s,d.why);
-  
-  if(d.s==='BUY'){$('sl').textContent='$'+fmt(last.close-atr);$('tp').textContent='$'+fmt(last.close+2*atr);}else if(d.s==='SELL'){$('sl').textContent='$'+fmt(last.close+atr);$('tp').textContent='$'+fmt(last.close-2*atr);}else{$('sl').textContent='--';$('tp').textContent='--';}
-  $('dot').className='dot active';$('connection').textContent='Binance API Online';$('status').textContent='Analysis complete.';
-  
-  try{const t=await (await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${currentPair}`,{cache:'no-store'})).json();$('livePrice').textContent='Live tick: $'+fmt(parseFloat(t.price));}catch{}
+async function loadData() {
+    if (busy) return; busy = true; \(('refresh').disabled = true; \)('status').textContent = 'Requesting ' + currentPair + '...';
+    try {
+        const baseKline = `https://binance.com{currentPair}&interval=5m&limit=100`;
+        const urls = [
+            baseKline,
+            `https://binance.vision{currentPair}&interval=5m&limit=100`,
+            `https://allorigins.win{encodeURIComponent(baseKline)}`
+        ];
+        
+        let raw = null;
+        for (const u of urls) {
+            try {
+                const r = await fetch(u, { cache: 'no-store' });
+                if (r.ok) {
+                    let textData = await r.text();
+                    let parsed = JSON.parse(textData);
+                    raw = (parsed && parsed.contents) ? JSON.parse(parsed.contents) : parsed;
+                    if (Array.isArray(raw)) break;
+                }
+            } catch (err) {}
+        }
+        
+        if (!raw || !Array.isArray(raw)) throw new Error('Binance data pipelines rate-limited or blocked');
+        
+        const now = Date.now();
+        
+        // --- 💎 SYSTEM FIX: Fixed index verification boundary maps ---
+        const candles = raw.filter(x => Array.isArray(x) && x.length >= 7 && Number(x[6]) < now && [2, 3, 4].every(i => Number.isFinite(Number(x[i])))).map(x => ({ time: Number(x[6]), high: Number(x[2]), low: Number(x[3]), close: Number(x[4]) }));
+        
+        if (candles.length < 55) throw new Error('Waiting candles stack completion');
+        
+        const closes = candles.map(c => c.close);
+        const rsi = rsiWilder(closes); 
+        const e20s = emaSeries(closes, 20); 
+        const e50s = emaSeries(closes, 50); 
+        const e20 = e20s?.at(-1); 
+        const e50 = e50s?.at(-1); 
+        const atr = atrWilder(candles);
+        
+        if ([rsi, e20, e50, atr].some(x => !Number.isFinite(x))) throw new Error('Indicator calculation loops dropped');
+        
+        const last = candles.at(-1); 
+        const d = decide(closes, rsi, e20, e50, atr);
+        
+        let prefixSymbol = (currentPair === 'EURUSDT') ? '' : '\$';
+        \$('candlePrice').textContent = prefixSymbol + fmt(last.close);
+        \(('rsi').textContent = rsi.toFixed(2);\)('ema').textContent = fmt(e20) + ' / ' + fmt(e50); 
+        \(('atr').textContent = fmt(atr);\)('candleTime').textContent = 'Completed candle time: ' + new Date(last.time).toLocaleTimeString(); 
+        setSignal(d.s, d.why);
+        
+        if (d.s === 'BUY') { 
+            \(('sl').textContent = prefixSymbol + fmt(last.close - atr);\)('tp').textContent = prefixSymbol + fmt(last.close + 2 * atr); 
+        } else if (d.s === 'SELL') { 
+            \(('sl').textContent = prefixSymbol + fmt(last.close + atr);\)('tp').textContent = prefixSymbol + fmt(last.close - 2 * atr); 
+        } else { 
+            \(('sl').textContent = '--';\)('tp').textContent = '--'; 
+        }
+        
+        \$('dot').className = 'dot active'; 
+        \(('connection').textContent = 'Binance API Online';\)('status').textContent = 'Analysis complete.';
+        
+        try {
+            const baseTicker = `https://binance.com{currentPair}`;
+            const tUrls = [baseTicker, `https://allorigins.win{encodeURIComponent(baseTicker)}`];
+            let t = null;
+            for (const u of tUrls) {
+                try {
+                    const rr = await fetch(u, { cache: 'no-store' });
+                    if (rr.ok) {
+                        let tText = await rr.text();
+                        let tParsed = JSON.parse(tText);
+                        t = (tParsed && tParsed.contents) ? JSON.parse(tParsed.contents) : tParsed;
+                        if (t && t.price) break;
+                    }
+                } catch {}
+            }
+            if (t && t.price) \$('livePrice').textContent = 'Live tick: ' + prefixSymbol + fmt(parseFloat(t.price));
+        } catch {}
+    } catch (e) { 
+        fail(e.message); 
+    } finally { 
+        \(('updated').textContent = 'Last check: ' + new Date().toLocaleTimeString();\)('refresh').disabled = false; 
+        busy = false; 
+    }
+}
+
+setInterval(async () => {
+    try {
+        const baseTicker = `https://binance.com{currentPair}`;
+        const r = await fetch(`https://allorigins.win{encodeURIComponent(baseTicker)}`, { cache: 'no-store' });
+        if (r.ok) {
+            let resText = await r.text();
+            let parsedObj = JSON.parse(resText);
+            let d = (parsedObj && parsedObj.contents) ? JSON.parse(parsedObj.contents) : parsedObj;
+            if (d && d.price) {
+                let prefixSymbol = (currentPair === 'EURUSDT') ? '' : '\$';
+                \$('livePrice').textContent = 'Live tick: ' + prefixSymbol + fmt(parseFloat(d.price));
+            }
+        }
+    } catch (e) {}
+}, 2500);
+
+\$('refresh').addEventListener('click', loadData);
+loadData();
+setInterval(loadData, 30000);
